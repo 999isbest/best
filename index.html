@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACGdoll Studio - 二次元实体化专家</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- ScrollReveal -->
+    <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rose-pink': '#F4A2D4',
+                        'sky-blue': '#9FF8FF',
+                        'naples-yellow': '#FEE9A1',
+                        'dark-bg': '#121225',
+                        'light-bg': '#F9F9FF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #F4A2D4, #9FF8FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #121225 0%, #1E1E3F 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .service-card:hover {
+            border-color: #F4A2D4;
+            transform: translateY(-5px);
+        }
+        
+        .product-card {
+            overflow: hidden;
+        }
+        
+        .product-card img {
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(244, 162, 212, 0.5);
+        }
+        
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(159, 248, 255, 0.5);
+        }
+        
+        .glow-yellow {
+            box-shadow: 0 0 15px rgba(254, 233, 161, 0.5);
+        }
+        
+        /* 3D模型容器 */
+        #model-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #F4A2D4;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e08bbf;
+        }
+        
+        /* 加载动画 */
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #F4A2D4;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .hero-content {
+                text-align: center;
+            }
+            
+            .hero-image {
+                margin-top: 2rem;
+            }
+            
+            #model-container {
+                height: 300px;
+            }
+        }
+        
+        /* AI聊天窗口 */
+        .chat-window {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            transform: translateY(calc(100% - 60px));
+            transition: transform 0.3s ease;
+        }
+        
+        .chat-window.open {
+            transform: translateY(0);
+        }
+        
+        .chat-header {
+            background: linear-gradient(90deg, #F4A2D4, #9FF8FF);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .user-message {
+            background: #F4A2D4;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            background: #f1f1f1;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        
+        .chat-input button {
+            background: #F4A2D4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            background: #e08bbf;
+        }
+        
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #F4A2D4, #9FF8FF);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-light-bg">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center">
+                        <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/ba7571dbd6a64d69a107ce765df323c2.png~tplv-a9rns2rl98-24:720:720.png?rcl=202511220244340D01CE997D82A3C2AECE&rk3s=8e244e95&rrcfp=8a172a1a&x-expires=1764355474&x-signature=1%2F7SROzFLtPxZhB8arAZYEQ%2B6MU%3D" alt="ACGdoll Studio Logo" class="h-12 mr-3">
+                        <span class="text-2xl font-bold text-dark-bg">ACGdoll<span class="text-rose-pink">Studio</span></span>
+                    </a>
+                </div>
+                
+                <!-- 桌面导航 -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-dark-bg hover:text-rose-pink transition-colors">首页</a>
+                    <a href="#services" class="text-dark-bg hover:text-rose-pink transition-colors">服务</a>
+                    <a href="#products" class="text-dark-bg hover:text-rose-pink transition-colors">产品</a>
+                    <a href="#process" class="text-dark-bg hover:text-rose-pink transition-colors">定制流程</a>
+                    <a href="#ai-tech" class="text-dark-bg hover:text-rose-pink transition-colors">AI技术</a>
+                    <a href="#creators" class="text-dark-bg hover:text-rose-pink transition-colors">创作者生态</a>
+                    <a href="#contact" class="bg-rose-pink text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition-colors">联系我们</a>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <div class="md:hidden">
+                    <button id="menu-toggle" class="text-dark-bg focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 移动端导航菜单 -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
+                <a href="#home" class="block py-2 text-dark-bg hover:text-rose-pink">首页</a>
+                <a href="#services" class="block py-2 text-dark-bg hover:text-rose-pink">服务</a>
+                <a href="#products" class="block py-2 text-dark-bg hover:text-rose-pink">产品</a>
+                <a href="#process" class="block py-2 text-dark-bg hover:text-rose-pink">定制流程</a>
+                <a href="#ai-tech" class="block py-2 text-dark-bg hover:text-rose-pink">AI技术</a>
+                <a href="#creators" class="block py-2 text-dark-bg hover:text-rose-pink">创作者生态</a>
+                <a href="#contact" class="block mt-3 bg-rose-pink text-white px-6 py-2 rounded-full hover:bg-opacity-90 text-center">联系我们</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首屏英雄区 -->
+    <section id="home" class="hero-gradient min-h-screen flex items-center pt-16">
+        <div class="container mx-auto px-4 py-16">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 hero-content">
+                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                        你的<span class="gradient-text">二次元梦想</span><br>
+                        我们的<span class="gradient-text">三维艺术</span>
+                    </h1>
+                    <p class="text-gray-300 text-lg mb-8 max-w-lg">
+                        ACGdoll Studio提供从原创OC设计、3D建模到高精度手办定制的二次元实体化全流程服务，让你的虚拟角色成为触手可及的收藏品。
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#services" class="bg-rose-pink text-white px-8 py-3 rounded-full text-center hover:bg-opacity-90 transition-colors">
+                            了解服务
+                        </a>
+                        <a href="#process" class="border border-white text-white px-8 py-3 rounded-full text-center hover:bg-white hover:text-dark-bg transition-colors">
+                            定制流程
+                        </a>
+                    </div>
+                    <div class="mt-12 flex items-center space-x-6">
+                        <div class="flex -space-x-2">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/2736dd4bae484960512d5710795cdc77~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=RXw89QqKYrpOUbQXQXeoCZvbivI%3D" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1897263577890816002~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=jU3nVqJoH1xsKAY6dBTbz%2FIK4pM%3D" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/505b6b341cc6c1e0c7079d53cb12ceec~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=OVOR6kD%2BDKKJlmBhDfOagn%2Fl%2B9I%3D" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
+                        </div>
+                        <div>
+                            <div class="flex items-center">
+                                <div class="flex">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                </div>
+                                <span class="text-white ml-2">5.0</span>
+                            </div>
+                            <p class="text-gray-300 text-sm">来自1000+满意客户</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 hero-image mt-12 md:mt-0">
+                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/13d7a9dce76144caa00139c61bfc1bf3~tplv-a9rns2rl98-image.image?rcl=20251122023847FCBAEEA9568CE890CD38&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1766342357&x-signature=%2B%2FljDuW%2BanfqQA694%2BoXlYt%2FBI0%3D" alt="赛博风格二次元玩偶" class="w-full max-w-lg mx-auto animate-float glow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 服务介绍 -->
+    <section id="services" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">我们的<span class="text-rose-pink">服务</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">提供从原创OC设计、3D建模到高精度手办定制的二次元实体化全流程服务，满足你对"独一无二"收藏品的需求。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 服务卡片 1 -->
+                <div class="service-card bg-white rounded-xl shadow-lg p-8">
+                    <div class="w-16 h-16 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mb-6">
+                        <i class="fas fa-paint-brush text-rose-pink text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">原创OC设计</h3>
+                    <p class="text-gray-600 mb-6">根据你的想法和需求，我们的设计师团队将为你打造独一无二的原创角色形象，包括立绘、插画等多种形式。</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-rose-pink mr-2"></i>
+                            <span>个性化角色设定</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-rose-pink mr-2"></i>
+                            <span>多种风格选择</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-rose-pink mr-2"></i>
+                            <span>细节精修与调整</span>
+                        </li>
+                    </ul>
+                    <a href="#contact" class="text-rose-pink font-medium hover:underline flex items-center">
+                        了解更多 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- 服务卡片 2 -->
+                <div class="service-card bg-white rounded-xl shadow-lg p-8">
+                    <div class="w-16 h-16 rounded-full bg-sky-blue bg-opacity-10 flex items-center justify-center mb-6">
+                        <i class="fas fa-cube text-sky-blue text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">3D建模与渲染</h3>
+                    <p class="text-gray-600 mb-6">将2D设计图转换为高精度3D模型，通过专业渲染技术呈现逼真效果，为实体化做好准备。</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-sky-blue mr-2"></i>
+                            <span>高精度模型构建</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-sky-blue mr-2"></i>
+                            <span>材质与纹理处理</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-sky-blue mr-2"></i>
+                            <span>多角度渲染展示</span>
+                        </li>
+                    </ul>
+                    <a href="#contact" class="text-sky-blue font-medium hover:underline flex items-center">
+                        了解更多 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- 服务卡片 3 -->
+                <div class="service-card bg-white rounded-xl shadow-lg p-8">
+                    <div class="w-16 h-16 rounded-full bg-naples-yellow bg-opacity-10 flex items-center justify-center mb-6">
+                        <i class="fas fa-cogs text-naples-yellow text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">高精度手办定制</h3>
+                    <p class="text-gray-600 mb-6">采用先进的3D打印和手工上色技术，将数字模型转化为精美实体手办，还原角色的每一个细节。</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-naples-yellow mr-2"></i>
+                            <span>多种材质选择</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-naples-yellow mr-2"></i>
+                            <span>精细涂装工艺</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-naples-yellow mr-2"></i>
+                            <span>质量严格把控</span>
+                        </li>
+                    </ul>
+                    <a href="#contact" class="text-naples-yellow font-medium hover:underline flex items-center">
+                        了解更多 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品展示 -->
+    <section id="products" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">产品<span class="text-rose-pink">展示</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">我们提供多种类型的二次元实体化产品，从基础款玩偶到高阶定制，满足不同用户的需求。</p>
+            </div>
+            
+            <!-- 产品分类标签 -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="product-filter-btn bg-rose-pink text-white px-6 py-2 rounded-full" data-filter="all">全部</button>
+                <button class="product-filter-btn bg-white text-gray-700 px-6 py-2 rounded-full hover:bg-gray-100" data-filter="basic">基础款玩偶</button>
+                <button class="product-filter-btn bg-white text-gray-700 px-6 py-2 rounded-full hover:bg-gray-100" data-filter="premium">高阶定制</button>
+                <button class="product-filter-btn bg-white text-gray-700 px-6 py-2 rounded-full hover:bg-gray-100" data-filter="limited">限量联名</button>
+            </div>
+            
+            <!-- 产品网格 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- 产品卡片 1 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="basic">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/ef99ec96e1e4b8808793527545d09176~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=Zpo9TCO5d72SuN%2BhsWV5Nc%2Bul6A%3D" alt="基础款玩偶" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-rose-pink text-white text-xs font-bold px-3 py-1 rounded-full">热销</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">雪出音公主 Q版</h3>
+                            <span class="text-rose-pink font-bold">¥129</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">可爱Q版雪出音公主手办，精致细节，完美还原角色魅力。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(128)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 2 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="premium">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/6d43f850d2489349651bfc93e1683aa2~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=gkAsqopFKQ6gANPr60%2Bbxv7v7Sc%3D" alt="高阶定制" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-sky-blue text-white text-xs font-bold px-3 py-1 rounded-full">新品</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">八重樱 真炎幸魂</h3>
+                            <span class="text-rose-pink font-bold">¥399</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">1/8比例高精度手办，精细涂装，可动关节设计。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(86)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 3 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="limited">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/24531224ab6b34abf5e82a4498165794~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=kVLJMQH6L7alXHFg0ZE0n1qjeWM%3D" alt="限量联名" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-naples-yellow text-white text-xs font-bold px-3 py-1 rounded-full">限量</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">初音未来 公主殿下</h3>
+                            <span class="text-rose-pink font-bold">¥499</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">限量版初音未来手办，包含专属底座和配件，全球限量2000体。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(156)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 4 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="basic">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/2318007722404741134~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=L2bJ%2F5QGns5FT9UoHxP0N5yoMkE%3D" alt="基础款玩偶" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">初音未来 SQ景品</h3>
+                            <span class="text-rose-pink font-bold">¥159</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">高性价比SQ景品系列，可爱造型，适合日常摆放。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="far fa-star text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(72)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 5 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="premium">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1897263577890816002~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=jU3nVqJoH1xsKAY6dBTbz%2FIK4pM%3D" alt="高阶定制" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">紫发魔法少女</h3>
+                            <span class="text-rose-pink font-bold">¥349</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">原创设计魔法少女手办，精细的服装细节和魔法特效。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(64)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 6 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="limited">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/7794633448c15123ed03bcc739379c76~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=%2BMgGZglyepcqP5vVMAXhc6ToeMs%3D" alt="限量联名" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-naples-yellow text-white text-xs font-bold px-3 py-1 rounded-full">限量</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">苍蓝武士 限量版</h3>
+                            <span class="text-rose-pink font-bold">¥459</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">限量版苍蓝武士手办，包含可替换武器和特效件，全球限量1500体。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(98)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 7 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="basic">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/2736dd4bae484960512d5710795cdc77~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=RXw89QqKYrpOUbQXQXeoCZvbivI%3D" alt="基础款玩偶" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">原创二次元少女</h3>
+                            <span class="text-rose-pink font-bold">¥179</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">原创设计二次元少女手办，可爱造型，适合收藏。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="far fa-star text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(56)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 产品卡片 8 -->
+                <div class="product-card bg-white rounded-xl shadow-md overflow-hidden" data-category="premium">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/505b6b341cc6c1e0c7079d53cb12ceec~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=OVOR6kD%2BDKKJlmBhDfOagn%2Fl%2B9I%3D" alt="高阶定制" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-sky-blue text-white text-xs font-bold px-3 py-1 rounded-full">新品</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold">沖田总司 英灵</h3>
+                            <span class="text-rose-pink font-bold">¥379</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">1/7比例高精度手办，精细涂装，可动关节设计。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                <span class="text-gray-500 text-xs ml-1">(78)</span>
+                            </div>
+                            <button class="add-to-cart-btn bg-rose-pink text-white px-4 py-2 rounded-full text-sm hover:bg-opacity-90">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 查看更多按钮 -->
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block bg-white border border-rose-pink text-rose-pink px-8 py-3 rounded-full hover:bg-rose-pink hover:text-white transition-colors">
+                    查看更多产品
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 定制流程 -->
+    <section id="process" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">定制<span class="text-rose-pink">流程</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">简单几步，让你的虚拟角色成为触手可及的实体收藏品。</p>
+            </div>
+            
+            <div class="relative">
+                <!-- 流程线 -->
+                <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+                    <!-- 步骤 1 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-rose-pink text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
+                            1
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">提交需求</h3>
+                        <p class="text-gray-600">上传你的角色设计图或概念稿，或使用我们的AI工具生成原创角色。</p>
+                    </div>
+                    
+                    <!-- 步骤 2 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-sky-blue text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
+                            2
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">设计确认</h3>
+                        <p class="text-gray-600">我们的设计师团队将根据你的需求进行优化，并提供3D渲染图供你确认。</p>
+                    </div>
+                    
+                    <!-- 步骤 3 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-naples-yellow text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
+                            3
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">生产制作</h3>
+                        <p class="text-gray-600">确认设计后，我们将进行3D打印、精细打磨和专业涂装，制作实体手办。</p>
+                    </div>
+                    
+                    <!-- 步骤 4 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-rose-pink text-white flex items-center justify-center mx-auto mb-6 text-xl font-bold">
+                            4
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">成品交付</h3>
+                        <p class="text-gray-600">经过严格质检后，我们将你的专属手办安全包装并送达你的手中。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 流程图 -->
+            <div class="mt-20">
+                <div class="text-center mb-10">
+                    <h3 class="text-2xl font-bold mb-4">实体化全流程展示</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">从数字设计到实体手办的完整制作过程</p>
+                </div>
+                
+                <div class="flex justify-center">
+                    <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/576392c8e90046e5aa14e0b72d2933fa~tplv-a9rns2rl98-image.image?rcl=20251122023847FCBAEEA9568CE890CD38&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1766342363&x-signature=MA53V62yB%2Bwt9rZv9uqfUFz3pSs%3D" alt="二次元角色实体化流程" class="w-full max-w-4xl rounded-lg shadow-lg">
+                </div>
+            </div>
+            
+            <!-- 开始定制按钮 -->
+            <div class="text-center mt-16">
+                <a href="#contact" class="inline-block bg-rose-pink text-white px-8 py-3 rounded-full hover:bg-opacity-90 transition-colors">
+                    立即开始定制
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI技术 -->
+    <section id="ai-tech" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">AI<span class="text-rose-pink">技术</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">利用先进的AI技术，降低设计门槛，让每个人都能轻松创建自己的二次元角色。</p>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/86fd4e151846480fa99d0372b0643b65~tplv-a9rns2rl98-image.image?rcl=20251122023847FCBAEEA9568CE890CD38&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1766342363&x-signature=%2FHSy9SERIOMXZBpvqe%2BLp4lHFbQ%3D" alt="AI技术展示" class="w-full rounded-lg shadow-lg">
+                </div>
+                
+                <div class="lg:w-1/2">
+                    <h3 class="text-2xl font-bold mb-6">AI辅助设计工具</h3>
+                    
+                    <div class="space-y-8">
+                        <!-- AI功能 1 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mr-4">
+                                <i class="fas fa-magic text-rose-pink text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-2">文字转形象</h4>
+                                <p class="text-gray-600">输入文字描述（如"银发兽耳剑士"），AI生成多版设计方案，用户选择后优化为可生产模型。</p>
+                            </div>
+                        </div>
+                        
+                        <!-- AI功能 2 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-sky-blue bg-opacity-10 flex items-center justify-center mr-4">
+                                <i class="fas fa-drafting-compass text-sky-blue text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-2">草图转3D</h4>
+                                <p class="text-gray-600">上传简单的2D草图，AI自动转换为高精度3D模型，并保留原设计的风格和细节。</p>
+                            </div>
+                        </div>
+                        
+                        <!-- AI功能 3 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-naples-yellow bg-opacity-10 flex items-center justify-center mr-4">
+                                <i class="fas fa-palette text-naples-yellow text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-2">风格迁移</h4>
+                                <p class="text-gray-600">支持"赛璐璐"、"厚涂"等多种画风适配，让你的角色呈现不同的艺术风格。</p>
+                            </div>
+                        </div>
+                        
+                        <!-- AI功能 4 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mr-4">
+                                <i class="fas fa-cogs text-rose-pink text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-2">云端协同生产</h4>
+                                <p class="text-gray-600">用户设计稿自动同步至工厂系统，实时反馈成本与生产可行性，加速定制流程。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 体验AI按钮 -->
+                    <div class="mt-10">
+                        <button id="ai-experience-btn" class="bg-rose-pink text-white px-8 py-3 rounded-full hover:bg-opacity-90 transition-colors">
+                            体验AI设计工具
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 3D模型展示 -->
+            <div class="mt-20">
+                <div class="text-center mb-10">
+                    <h3 class="text-2xl font-bold mb-4">3D模型实时展示</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">通过Three.js技术，在浏览器中实时查看和交互3D模型</p>
+                </div>
+                
+                <div id="model-container" class="rounded-lg shadow-lg overflow-hidden">
+                    <!-- Three.js 3D模型将在这里渲染 -->
+                    <div class="flex items-center justify-center h-full bg-gray-100">
+                        <div class="text-center">
+                            <div class="loader mx-auto mb-4"></div>
+                            <p class="text-gray-600">加载3D模型中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 创作者生态 -->
+    <section id="creators" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">创作者<span class="text-rose-pink">生态</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">联合中小画师孵化原创IP，打造"个性化收藏+社交货币+创作者经济"生态闭环。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 生态卡片 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+                    <div class="w-16 h-16 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mb-6">
+                        <i class="fas fa-user-graduate text-rose-pink text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">IP孵化计划</h3>
+                    <p class="text-gray-600 mb-6">为中小画师/独立工作室提供专业化商业落地与品牌孵化支持，帮助原创IP实现商业价值。</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-rose-pink mr-2"></i>
+                            <span>版权保护与管理</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-rose-pink mr-2"></i>
+                            <span>商业化运营支持</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-rose-pink mr-2"></i>
+                            <span>渠道资源对接</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 生态卡片 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+                    <div class="w-16 h-16 rounded-full bg-sky-blue bg-opacity-10 flex items-center justify-center mb-6">
+                        <i class="fas fa-tools text-sky-blue text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">创作者工具</h3>
+                    <p class="text-gray-600 mb-6">提供AI辅助设计工具和模板库，降低创作门槛，让创作者专注于创意表达。</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-sky-blue mr-2"></i>
+                            <span>AI辅助设计工具</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-sky-blue mr-2"></i>
+                            <span>素材模板库</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-sky-blue mr-2"></i>
+                            <span>云端协同创作</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 生态卡片 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+                    <div class="w-16 h-16 rounded-full bg-naples-yellow bg-opacity-10 flex items-center justify-center mb-6">
+                        <i class="fas fa-hand-holding-usd text-naples-yellow text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">收益分成</h3>
+                    <p class="text-gray-600 mb-6">画师可上传模板至小程序供用户付费使用，获得分成，实现持续收益。</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-naples-yellow mr-2"></i>
+                            <span>模板销售分成</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-naples-yellow mr-2"></i>
+                            <span>定制订单分成</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-naples-yellow mr-2"></i>
+                            <span>IP授权收益</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 原创角色大赛 -->
+            <div class="mt-20 bg-gradient-to-r from-rose-pink to-sky-blue rounded-2xl p-8 md:p-12 text-white">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="md:w-2/3 mb-8 md:mb-0">
+                        <h3 class="text-2xl md:text-3xl font-bold mb-4">原创角色大赛</h3>
+                        <p class="text-white text-opacity-90 mb-6">定期举办"原创角色大赛"，优胜作品将在被购买版权后进行实体化，并全球发售，让优秀创作者获得更多曝光和收益。</p>
+                        <a href="#" class="inline-block bg-white text-rose-pink px-8 py-3 rounded-full font-medium hover:bg-opacity-90 transition-colors">
+                            了解大赛详情
+                        </a>
+                    </div>
+                    <div class="md:w-1/3">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/d34701f94985d84d7eead13b0dec7e64~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=xISNBdKbTt%2BwI0YI8R7akqc9Ncg%3D" alt="原创角色大赛" class="w-full rounded-lg shadow-lg">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 合作画师展示 -->
+            <div class="mt-20">
+                <div class="text-center mb-10">
+                    <h3 class="text-2xl font-bold mb-4">合作画师</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">我们与众多优秀画师合作，为用户提供多样化的角色设计选择</p>
+                </div>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                    <!-- 画师 1 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
+                            <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1897263577890816002~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=jU3nVqJoH1xsKAY6dBTbz%2FIK4pM%3D" alt="画师头像" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold">画师A</h4>
+                        <p class="text-gray-500 text-sm">日系风格</p>
+                    </div>
+                    
+                    <!-- 画师 2 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/447d3704b941da21e23bf839b35d73fe~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=PKAMFg21eSemX2A%2Fa6GWlEoVm5k%3D" alt="画师头像" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold">画师B</h4>
+                        <p class="text-gray-500 text-sm">美少女战士</p>
+                    </div>
+                    
+                    <!-- 画师 3 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/7794633448c15123ed03bcc739379c76~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=%2BMgGZglyepcqP5vVMAXhc6ToeMs%3D" alt="画师头像" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold">画师C</h4>
+                        <p class="text-gray-500 text-sm">少年风格</p>
+                    </div>
+                    
+                    <!-- 画师 4 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/2736dd4bae484960512d5710795cdc77~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=RXw89QqKYrpOUbQXQXeoCZvbivI%3D" alt="画师头像" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold">画师D</h4>
+                        <p class="text-gray-500 text-sm">萌系风格</p>
+                    </div>
+                    
+                    <!-- 画师 5 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/d34701f94985d84d7eead13b0dec7e64~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=xISNBdKbTt%2BwI0YI8R7akqc9Ncg%3D" alt="画师头像" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold">画师E</h4>
+                        <p class="text-gray-500 text-sm">古风风格</p>
+                    </div>
+                    
+                    <!-- 画师 6 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/505b6b341cc6c1e0c7079d53cb12ceec~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779302336&x-signature=OVOR6kD%2BDKKJlmBhDfOagn%2Fl%2B9I%3D" alt="画师头像" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold">画师F</h4>
+                        <p class="text-gray-500 text-sm">奇幻风格</p>
+                    </div>
+                </div>
+                
+                <!-- 招募画师按钮 -->
+                <div class="text-center mt-10">
+                    <a href="#" class="inline-block bg-white border border-rose-pink text-rose-pink px-8 py-3 rounded-full hover:bg-rose-pink hover:text-white transition-colors">
+                        加入我们的画师团队
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">联系<span class="text-rose-pink">我们</span></h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">无论你是想定制专属手办，还是成为我们的合作画师，都欢迎联系我们。</p>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-12">
+                <div class="lg:w-1/2">
+                    <form class="bg-white rounded-xl shadow-lg p-8">
+                        <div class="mb-6">
+                            <label for="name" class="block text-gray-700 font-medium mb-2">姓名</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-pink">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="email" class="block text-gray-700 font-medium mb-2">邮箱</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-pink">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="subject" class="block text-gray-700 font-medium mb-2">主题</label>
+                            <select id="subject" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-pink">
+                                <option value="">请选择</option>
+                                <option value="custom">定制咨询</option>
+                                <option value="cooperation">合作洽谈</option>
+                                <option value="support">技术支持</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="message" class="block text-gray-700 font-medium mb-2">留言</label>
+                            <textarea id="message" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-pink"></textarea>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">上传文件（可选）</label>
+                            <div class="flex items-center justify-center w-full">
+                                <label class="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <div class="flex flex-col items-center justify-center pt-7">
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-500">点击或拖拽文件到这里上传</p>
+                                        <p class="text-xs text-gray-500 mt-1">支持图片、PDF等格式</p>
+                                    </div>
+                                    <input type="file" class="hidden">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-rose-pink text-white py-3 rounded-lg hover:bg-opacity-90 transition-colors">
+                            提交
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="lg:w-1/2">
+                    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                        <h3 class="text-xl font-bold mb-6">联系方式</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mr-4">
+                                    <i class="fas fa-map-marker-alt text-rose-pink"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">地址</h4>
+                                    <p class="text-gray-600">上海市浦东新区张江高科技园区科苑路88号</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mr-4">
+                                    <i class="fas fa-phone-alt text-rose-pink"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">电话</h4>
+                                    <p class="text-gray-600">400-123-4567</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mr-4">
+                                    <i class="fas fa-envelope text-rose-pink"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">邮箱</h4>
+                                    <p class="text-gray-600">info@acgdoll.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center mr-4">
+                                    <i class="fas fa-clock text-rose-pink"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">工作时间</h4>
+                                    <p class="text-gray-600">周一至周五: 9:00 - 18:00</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 社交媒体 -->
+                        <div class="mt-8">
+                            <h4 class="font-bold mb-4">关注我们</h4>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center text-rose-pink hover:bg-rose-pink hover:text-white transition-colors">
+                                    <i class="fab fa-weixin"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center text-rose-pink hover:bg-rose-pink hover:text-white transition-colors">
+                                    <i class="fab fa-weibo"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center text-rose-pink hover:bg-rose-pink hover:text-white transition-colors">
+                                    <i class="fab fa-bilibili"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center text-rose-pink hover:bg-rose-pink hover:text-white transition-colors">
+                                    <i class="fab fa-qq"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 rounded-full bg-rose-pink bg-opacity-10 flex items-center justify-center text-rose-pink hover:bg-rose-pink hover:text-white transition-colors">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 常见问题 -->
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold mb-6">常见问题</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="border-b border-gray-100 pb-4">
+                                <button class="flex justify-between items-center w-full text-left font-medium">
+                                    <span>定制一个手办需要多长时间？</span>
+                                    <i class="fas fa-chevron-down text-gray-400 transition-transform"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden">
+                                    通常情况下，从设计确认到成品交付需要4-6周时间，具体取决于产品复杂度和订单量。
+                                </div>
+                            </div>
+                            
+                            <div class="border-b border-gray-100 pb-4">
+                                <button class="flex justify-between items-center w-full text-left font-medium">
+                                    <span>定制手办的价格范围是多少？</span>
+                                    <i class="fas fa-chevron-down text-gray-400 transition-transform"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden">
+                                    我们的定制手办价格根据尺寸、复杂度和材质不同，从299元到数千元不等。您可以联系我们获取详细报价。
+                                </div>
+                            </div>
+                            
+                            <div class="border-b border-gray-100 pb-4">
+                                <button class="flex justify-between items-center w-full text-left font-medium">
+                                    <span>如何保护我的原创角色版权？</span>
+                                    <i class="fas fa-chevron-down text-gray-400 transition-transform"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden">
+                                    我们尊重并保护所有原创角色的版权，会与您签订保密协议，并在未经授权的情况下不会将您的设计用于其他用途。您也可以选择为您的原创角色申请版权登记。
+                                </div>
+                            </div>
+                            
+                            <div class="pb-4">
+                                <button class="flex justify-between items-center w-full text-left font-medium">
+                                    <span>如何成为你们的合作画师？</span>
+                                    <i class="fas fa-chevron-down text-gray-400 transition-transform"></i>
+                                </button>
+                                <div class="mt-2 text-gray-600 hidden">
+                                    我们欢迎所有有才华的画师加入我们的创作者生态。您可以通过网站上的"加入我们"表单提交您的作品集和联系方式，我们的团队会尽快与您联系。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark-bg text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- 公司信息 -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/ba7571dbd6a64d69a107ce765df323c2.png~tplv-a9rns2rl98-24:720:720.png?rcl=202511220244340D01CE997D82A3C2AECE&rk3s=8e244e95&rrcfp=8a172a1a&x-expires=1764355474&x-signature=1%2F7SROzFLtPxZhB8arAZYEQ%2B6MU%3D" alt="ACGdoll Studio Logo" class="h-12 mr-3">
+                        <span class="text-2xl font-bold">ACGdoll<span class="text-rose-pink">Studio</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        提供从原创OC设计、3D建模到高精度手办定制的二次元实体化全流程服务，让你的虚拟角色成为触手可及的收藏品。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-rose-pink">
+                            <i class="fab fa-weixin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-rose-pink">
+                            <i class="fab fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-rose-pink">
+                            <i class="fab fa-bilibili text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-rose-pink">
+                            <i class="fab fa-qq text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 快速链接 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6">快速链接</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#home" class="text-gray-400 hover:text-rose-pink">首页</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-rose-pink">服务</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-rose-pink">产品</a></li>
+                        <li><a href="#process" class="text-gray-400 hover:text-rose-pink">定制流程</a></li>
+                        <li><a href="#ai-tech" class="text-gray-400 hover:text-rose-pink">AI技术</a></li>
+                        <li><a href="#creators" class="text-gray-400 hover:text-rose-pink">创作者生态</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-rose-pink">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 服务 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6">服务</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-rose-pink">原创OC设计</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-rose-pink">3D建模与渲染</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-rose-pink">高精度手办定制</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-rose-pink">IP孵化合作</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-rose-pink">衍生品开发</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 联系方式 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6">联系方式</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-rose-pink mt-1 mr-3"></i>
+                            <span class="text-gray-400">上海市浦东新区张江高科技园区科苑路88号</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt text-rose-pink mr-3"></i>
+                            <span class="text-gray-400">400-123-4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope text-rose-pink mr-3"></i>
+                            <span class="text-gray-400">info@acgdoll.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2023 ACGdoll Studio. 保留所有权利。</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-rose-pink text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-rose-pink text-sm">服务条款</a>
+                    <a href="#" class="text-gray-400 hover:text-rose-pink text-sm">版权声明</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI聊天窗口 -->
+    <div class="chat-toggle">
+        <i class="fas fa-comment-dots text-2xl"></i>
+    </div>
+    
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="flex items-center">
+                <i class="fas fa-robot mr-2"></i>
+                <span>AI助手</span>
+            </div>
+            <button class="chat-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-body">
+            <div class="chat-message bot-message">
+                你好！我是ACGdoll Studio的AI助手，有什么可以帮到你的吗？
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="请输入你的问题..." id="chat-input-field">
+            <button id="chat-send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 产品筛选
+        document.querySelectorAll('.product-filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // 更新按钮样式
+                document.querySelectorAll('.product-filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-rose-pink', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700');
+                });
+                this.classList.remove('bg-white', 'text-gray-700');
+                this.classList.add('bg-rose-pink', 'text-white');
+                
+                // 筛选产品
+                const filter = this.getAttribute('data-filter');
+                document.querySelectorAll('.product-card').forEach(card => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // 加入购物车按钮
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // 显示加入成功提示
+                const originalText = this.textContent;
+                this.textContent = '已加入购物车';
+                this.disabled = true;
+                
+                // 添加动画效果
+                this.classList.add('bg-green-500');
+                
+                // 3秒后恢复原样
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.disabled = false;
+                    this.classList.remove('bg-green-500');
+                }, 3000);
+            });
+        });
+        
+        // 常见问题折叠面板
+        document.querySelectorAll('#contact button').forEach(button => {
+            button.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                
+                // 切换内容显示/隐藏
+                content.classList.toggle('hidden');
+                
+                // 切换图标旋转
+                if (content.classList.contains('hidden')) {
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+        
+        // AI聊天窗口
+        const chatToggle = document.querySelector('.chat-toggle');
+        const chatWindow = document.querySelector('.chat-window');
+        const chatClose = document.querySelector('.chat-close');
+        const chatInput = document.getElementById('chat-input-field');
+        const chatSend = document.getElementById('chat-send-btn');
+        const chatBody = document.querySelector('.chat-body');
+        
+        // 打开/关闭聊天窗口
+        chatToggle.addEventListener('click', function() {
+            chatWindow.classList.toggle('open');
+        });
+        
+        chatClose.addEventListener('click', function() {
+            chatWindow.classList.remove('open');
+        });
+        
+        // 发送消息
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                // 添加用户消息
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.classList.add('chat-message', 'user-message');
+                userMessageDiv.textContent = message;
+                chatBody.appendChild(userMessageDiv);
+                
+                // 清空输入框
+                chatInput.value = '';
+                
+                // 滚动到底部
+                chatBody.scrollTop = chatBody.scrollHeight;
+                
+                // 模拟AI回复
+                setTimeout(() => {
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.classList.add('chat-message', 'bot-message');
+                    
+                    // 简单的回复逻辑
+                    let reply = '';
+                    if (message.includes('价格') || message.includes('多少钱')) {
+                        reply = '我们的产品价格根据尺寸、复杂度和材质不同，从99元到数千元不等。您可以在产品展示页面查看详细价格，或联系我们获取定制报价。';
+                    } else if (message.includes('时间') || message.includes('多久')) {
+                        reply = '通常情况下，从设计确认到成品交付需要4-6周时间，具体取决于产品复杂度和订单量。';
+                    } else if (message.includes('定制') || message.includes('设计')) {
+                        reply = '我们提供从原创OC设计、3D建模到高精度手办定制的全流程服务。您可以通过上传设计图或使用我们的AI工具生成原创角色，然后我们会将其制作成实体手办。';
+                    } else if (message.includes('合作') || message.includes('画师')) {
+                        reply = '我们欢迎所有有才华的画师加入我们的创作者生态。您可以通过网站上的"加入我们"表单提交您的作品集和联系方式，我们的团队会尽快与您联系。';
+                    } else {
+                        reply = '感谢您的咨询！我们的客服团队会尽快处理您的问题。您也可以直接拨打我们的客服热线400-123-4567，或发送邮件至info@acgdoll.com。';
+                    }
+                    
+                    botMessageDiv.textContent = reply;
+                    chatBody.appendChild(botMessageDiv);
+                    
+                    // 滚动到底部
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }, 1000);
+            }
+        }
+        
+        chatSend.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // AI体验按钮
+        document.getElementById('ai-experience-btn').addEventListener('click', function() {
+            alert('AI设计工具体验功能即将上线，敬请期待！');
+        });
+        
+        // 3D模型展示
+        function init3DModel() {
+            // 创建场景
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf1f1f1);
+            
+            // 创建相机
+            const camera = new THREE.PerspectiveCamera(75, document.getElementById('model-container').offsetWidth / document.getElementById('model-container').offsetHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // 创建渲染器
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(document.getElementById('model-container').offsetWidth, document.getElementById('model-container').offsetHeight);
+            
+            // 清除加载动画并添加渲染器
+            document.getElementById('model-container').innerHTML = '';
+            document.getElementById('model-container').appendChild(renderer.domElement);
+            
+            // 添加灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 创建一个简单的3D模型（立方体）
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            
+            // 创建材质
+            const materials = [
+                new THREE.MeshStandardMaterial({ color: 0xF4A2D4 }), // 前面
+                new THREE.MeshStandardMaterial({ color: 0x9FF8FF }), // 后面
+                new THREE.MeshStandardMaterial({ color: 0xFEE9A1 }), // 上面
+                new THREE.MeshStandardMaterial({ color: 0xF4A2D4 }), // 下面
+                new THREE.MeshStandardMaterial({ color: 0x9FF8FF }), // 右面
+                new THREE.MeshStandardMaterial({ color: 0xFEE9A1 })  // 左面
+            ];
+            
+            const cube = new THREE.Mesh(geometry, materials);
+            scene.add(cube);
+            
+            // 添加轨道控制器
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // 动画循环
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // 更新控制器
+                controls.update();
+                
+                // 旋转立方体
+                cube.rotation.x += 0.005;
+                cube.rotation.y += 0.01;
+                
+                renderer.render(scene, camera);
+            }
+            
+            // 响应窗口大小变化
+            function onWindowResize() {
+                camera.aspect = document.getElementById('model-container').offsetWidth / document.getElementById('model-container').offsetHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(document.getElementById('model-container').offsetWidth, document.getElementById('model-container').offsetHeight);
+            }
+            
+            window.addEventListener('resize', onWindowResize);
+            
+            // 开始动画
+            animate();
+        }
+        
+        // 页面加载完成后初始化3D模型
+        window.addEventListener('load', function() {
+            // 延迟加载3D模型，优先加载页面其他内容
+            setTimeout(init3DModel, 1000);
+            
+            // 初始化滚动动画
+            ScrollReveal().reveal('.service-card', { 
+                delay: 200,
+                distance: '20px',
+                origin: 'bottom',
+                interval: 100
+            });
+            
+            ScrollReveal().reveal('.product-card', { 
+                delay: 200,
+                distance: '20px',
+                origin: 'bottom',
+                interval: 100
+            });
+            
+            ScrollReveal().reveal('.chat-message', { 
+                delay: 200,
+                distance: '20px',
+                origin: 'bottom',
+                interval: 100
+            });
+        });
+    </script>
+</body>
+</html>
