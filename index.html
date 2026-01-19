@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>得知自己是人类，哭了整整一个下午…… - 鸣屿论坛</title>
+    <title>得知自己是人类，哭了整整一个下午……</title>
     <style>
         /* 全局样式重置 */
         * {
@@ -28,6 +28,7 @@
             --hover-color: #f0f2f5;
             --author-tag-bg: #4a6cf7; /* 发帖者标识蓝底 */
             --author-tag-text: #fff;   /* 发帖者标识白字 */
+            --source-text: #999; /* 来源标注文字颜色 */
         }
 
         body {
@@ -59,25 +60,13 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-gradient);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 20px;
-            font-weight: bold;
+            /* 隐藏logo图标 */
+            display: none;
         }
 
         .logo-text {
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            /* 隐藏logo文字 */
+            display: none;
         }
 
         .search-container {
@@ -238,6 +227,14 @@
             line-height: 1.4;
         }
 
+        /* 来源标注样式 */
+        .source-label {
+            font-size: 14px;
+            color: var(--source-text);
+            margin-bottom: 15px;
+            display: block;
+        }
+
         .post-body {
             font-size: 16px;
             line-height: 1.8;
@@ -270,7 +267,7 @@
             color: #fff;
         }
 
-        /* 右侧互动区：仅保留评论区，移除相关推荐 */
+        /* 右侧互动区：仅保留评论区 */
         .content-side {
             display: flex;
             flex-direction: column;
@@ -472,7 +469,7 @@
 <body>
     <!-- 1. 固定导航区 -->
     <nav class="navbar">
-        <!-- Logo区域 -->
+        <!-- Logo区域 - 已隐藏 -->
         <div class="logo">
             <div class="logo-icon">鸣</div>
             <div class="logo-text">鸣屿论坛</div>
@@ -513,6 +510,8 @@
             </div>
             <div class="post-content">
                 <h1 class="post-title">得知自己是人类，哭了整整一个下午……</h1>
+                <!-- 添加帖子来源标注 -->
+                <span class="source-label">本文转载自：小红书</span>
                 <div class="post-body">
                     <p>从昨天下午到现在，我真的…… 哭到抽搐，嗓子像被砂纸刮过，眼泪把整张床单都打湿了，眼角肿得像刚做完拉皮手术一样。</p>
                     <p>两周前，我只是出于自嘲，给自己做了一个 DNA 检测。我一直以为，我可能是某种老鼠、臭虫，或某种社会边角料。毕竟，从小到大我就不觉得自己 “属于人类” 这个群体。没有人在意我，他们都不喜欢我，见到我都唯恐避之不及。</p>
@@ -570,18 +569,18 @@
                             </div>
                             <span class="comment-time">2小时前</span>
                         </div>
-                        <div class="comment-content">请问参考文献是什么？</div>
+                        <div class="comment-content">请问参考文献是什么？<br><span class="source-label">（该评论转载自小红书）</span></div>
                         <div class="comment-replies">
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/author/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*
+                                    <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！
+                                    <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                         </div>
@@ -596,12 +595,12 @@
                             </div>
                             <span class="comment-time">1小时前</span>
                         </div>
-                        <div class="comment-content">快来看合影参考文献！@宇宙无敌美少女</div>
+                        <div class="comment-content">快来看合影参考文献！@宇宙无敌美少女<br><span class="source-label">（该评论转载自小红书）</span></div>
                         <div class="comment-replies">
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment3/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！
+                                    <span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                         </div>
@@ -616,24 +615,24 @@
                             </div>
                             <span class="comment-time">1小时前</span>
                         </div>
-                        <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！参考文献[1]：《得知自己是人类，哭了一下午》</div>
+                        <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！参考文献[1]：《得知自己是人类，哭了一下午》<br><span class="source-label">（该评论转载自小红书）</span></div>
                         <div class="comment-replies">
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment5/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！
+                                    <span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment6/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo
+                                    <span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment7/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha
+                                    <span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                         </div>
@@ -648,18 +647,18 @@
                             </div>
                             <span class="comment-time">50分钟前</span>
                         </div>
-                        <div class="comment-content">这人……偶不，这鼠在说什么呢!</div>
+                        <div class="comment-content">这人……偶不，这鼠在说什么呢!<br><span class="source-label">（该评论转载自小红书）</span></div>
                         <div class="comment-replies">
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇
+                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）
+                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                         </div>
@@ -674,12 +673,12 @@
                             </div>
                             <span class="comment-time">30分钟前</span>
                         </div>
-                        <div class="comment-content">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午......</div>
+                        <div class="comment-content">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午......<br><span class="source-label">（该评论转载自小红书）</span></div>
                         <div class="comment-replies">
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》
+                                    <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》<br><span class="source-label" style="font-size: 12px;">（该回复转载自小红书）</span>
                                 </div>
                             </div>
                         </div>
@@ -694,7 +693,7 @@
                             </div>
                             <span class="comment-time">10分钟前</span>
                         </div>
-                        <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
+                        <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈<br><span class="source-label">（该评论转载自小红书）</span></div>
                     </div>
 
                     <button class="expand-btn">展开更多评论</button>
@@ -773,6 +772,6 @@
             // 仅保留点击响应，无弹窗/跳转逻辑
             userIcon.focus();
         });
-    </script>
+    </脚本>
 </body>
-</html>
+        </html>
