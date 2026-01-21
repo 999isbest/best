@@ -846,96 +846,133 @@
     </div>
 
     <script>
-        // 搜索框即时下拉推荐
-        const searchInput = document.getElementById('searchInput');
-        const searchSuggestions = document.getElementById('searchSuggestions');
-        searchInput.addEventListener('focus', () => searchSuggestions.classList.add('show'));
-        searchInput.addEventListener('input', () => searchSuggestions.classList.add('show'));
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
-                searchSuggestions.classList.remove('show');
+        // 等待页面完全加载后再执行所有JS逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索框即时下拉推荐
+            const searchInput = document.getElementById('searchInput');
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            
+            if (searchInput && searchSuggestions) {
+                searchInput.addEventListener('focus', () => searchSuggestions.classList.add('show'));
+                searchInput.addEventListener('input', () => searchSuggestions.classList.add('show'));
+                document.addEventListener('click', (e) => {
+                    if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                        searchSuggestions.classList.remove('show');
+                    }
+                });
             }
-        });
 
-        // 图片轮播（单图隐藏按钮）
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
+            // 图片轮播（单图隐藏按钮）
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            
+            if (prevBtn && nextBtn) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            }
 
-        // 评论输入框功能：输入内容激活发布按钮
-        const commentInput = document.querySelector('.comment-input');
-        const submitBtn = document.querySelector('.submit-btn');
-        commentInput.addEventListener('input', () => {
-            submitBtn.disabled = commentInput.value.trim() === '';
-        });
+            // 评论输入框功能：输入内容激活发布按钮
+            const commentInput = document.querySelector('.comment-input');
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            if (commentInput && submitBtn) {
+                commentInput.addEventListener('input', () => {
+                    submitBtn.disabled = commentInput.value.trim() === '';
+                });
+            }
 
-        // 评论功能：仅保留点击响应
-        const atFunc = document.getElementById('atFunc');
-        const emojiFunc = document.getElementById('emojiFunc');
-        const imgFunc = document.getElementById('imgFunc');
+            // 评论功能：仅保留点击响应
+            const atFunc = document.getElementById('atFunc');
+            const emojiFunc = document.getElementById('emojiFunc');
+            const imgFunc = document.getElementById('imgFunc');
 
-        // @功能：点击插入@符号
-        atFunc.addEventListener('click', () => {
-            commentInput.focus();
-            const cursorPos = commentInput.selectionStart;
-            const val = commentInput.value;
-            commentInput.value = val.slice(0, cursorPos) + '@' + val.slice(cursorPos);
-            commentInput.selectionStart = commentInput.selectionEnd = cursorPos + 1;
-        });
+            // @功能：点击插入@符号
+            if (atFunc && commentInput) {
+                atFunc.addEventListener('click', () => {
+                    commentInput.focus();
+                    const cursorPos = commentInput.selectionStart;
+                    const val = commentInput.value;
+                    commentInput.value = val.slice(0, cursorPos) + '@' + val.slice(cursorPos);
+                    commentInput.selectionStart = commentInput.selectionEnd = cursorPos + 1;
+                });
+            }
 
-        // 表情/发图功能：仅点击聚焦
-        emojiFunc.addEventListener('click', () => commentInput.focus());
-        imgFunc.addEventListener('click', () => commentInput.focus());
+            // 表情/发图功能：仅点击聚焦
+            if (emojiFunc && commentInput) {
+                emojiFunc.addEventListener('click', () => commentInput.focus());
+            }
+            if (imgFunc && commentInput) {
+                imgFunc.addEventListener('click', () => commentInput.focus());
+            }
 
-        // 展开更多评论
-        const expandBtn = document.querySelector('.expand-btn');
-        expandBtn.addEventListener('click', () => {
-            expandBtn.textContent = '已显示全部评论';
-            expandBtn.disabled = true;
-            expandBtn.style.color = 'var(--text-light)';
-        });
+            // 展开更多评论
+            const expandBtn = document.querySelector('.expand-btn');
+            
+            if (expandBtn) {
+                expandBtn.addEventListener('click', () => {
+                    expandBtn.textContent = '已显示全部评论';
+                    expandBtn.disabled = true;
+                    expandBtn.style.color = 'var(--text-light)';
+                });
+            }
 
-        // 顶部消息/个人中心图标：仅保留点击交互
-        const msgIcon = document.getElementById('msgIcon');
-        const userIcon = document.getElementById('userIcon');
-        msgIcon.addEventListener('click', () => msgIcon.focus());
-        userIcon.addEventListener('click', () => userIcon.focus());
+            // 顶部消息/个人中心图标：仅保留点击交互
+            const msgIcon = document.getElementById('msgIcon');
+            const userIcon = document.getElementById('userIcon');
+            
+            if (msgIcon) {
+                msgIcon.addEventListener('click', () => msgIcon.focus());
+            }
+            if (userIcon) {
+                userIcon.addEventListener('click', () => userIcon.focus());
+            }
 
-        // 弹窗功能实现（移除按钮相关逻辑）
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalContent = document.getElementById('modalContent');
-        const modalClose = document.getElementById('modalClose');
-        const tooltipBoxes = document.querySelectorAll('.tooltip-box');
+            // 弹窗功能实现（移除按钮相关逻辑）
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalContent = document.getElementById('modalContent');
+            const modalClose = document.getElementById('modalClose');
+            const tooltipBoxes = document.querySelectorAll('.tooltip-box');
 
-        // 点击文字框打开弹窗
-        tooltipBoxes.forEach(box => {
-            box.addEventListener('click', () => {
-                const content = box.getAttribute('data-modal-content');
-                modalContent.innerHTML = `<p>${content}</p>`; // 仅渲染文本，无按钮
-                modalOverlay.classList.add('show');
-                document.body.style.overflow = 'hidden'; // 禁止页面滚动
+            // 打印调试信息，确认是否获取到tooltip元素
+            console.log('找到的tooltip元素数量:', tooltipBoxes.length);
+
+            // 点击文字框打开弹窗
+            tooltipBoxes.forEach(box => {
+                box.addEventListener('click', () => {
+                    console.log('点击了tooltip框，内容:', box.getAttribute('data-modal-content'));
+                    const content = box.getAttribute('data-modal-content');
+                    modalContent.innerHTML = `<p>${content}</p>`; // 仅渲染文本，无按钮
+                    modalOverlay.classList.add('show');
+                    document.body.style.overflow = 'hidden'; // 禁止页面滚动
+                });
             });
-        });
 
-        // 关闭弹窗函数
-        function closeModal() {
-            modalOverlay.classList.remove('show');
-            document.body.style.overflow = ''; // 恢复页面滚动
-            modalContent.innerHTML = ''; // 清空弹窗内容
-        }
+            // 关闭弹窗函数
+            function closeModal() {
+                modalOverlay.classList.remove('show');
+                document.body.style.overflow = ''; // 恢复页面滚动
+                modalContent.innerHTML = ''; // 清空弹窗内容
+            }
 
-        // 弹窗关闭：按钮、遮罩、ESC键
-        modalClose.addEventListener('click', closeModal);
-        modalOverlay.addEventListener('click', (e) => e.target === modalOverlay && closeModal());
-        document.addEventListener('keydown',e)=>key==='Escape'&&modalOverlayclassListcontains'show'closeModal;
+            // 弹窗关闭：按钮、遮罩、ESC键
+            if (modalClose) {
+                modalClose.addEventListener('click', closeModal);
+            }
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', (e) => e.target === modalOverlay && closeModal());
+            }
+            document.addEventListener('keydown', (e) => e.key === 'Escape' && modalOverlay.classList.contains('show') && closeModal());
 
-        // 新增：底部深入调查按钮点击事件（预留拓展接口）
-        const footerInvestigateBtn = document.getElementById('footerInvestigateBtn');
-        footerInvestigateBtn.addEventListener('click', () => {
-            console.log('点击底部深入调查按钮，可在此添加自定义逻辑');
-            // 可添加：页面跳转、显示新内容、弹出新弹窗等操作
-            // 示例：alert('开启深入调查模式！');
+            // 新增：底部深入调查按钮点击事件（预留拓展接口）
+            const footerInvestigateBtn = document.getElementById('footerInvestigateBtn');
+            
+            if (footerInvestigateBtn) {
+                footerInvestigateBtn.addEventListener('click', () => {
+                    console.log('点击底部深入调查按钮，可在此添加自定义逻辑');
+                    // 可添加：页面跳转、显示新内容、弹出新弹窗等操作
+                    // 示例：alert('开启深入调查模式！');
+                });
+            }
         });
     </script>
 </body>
