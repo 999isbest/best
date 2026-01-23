@@ -34,22 +34,21 @@
             --tooltip-text: #01579b;
         }
 
-        /* 新增：页面根容器，用于旋转 */
-        .page-wrapper {
-            width: 100vw;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-            overflow-x: hidden;
-        }
-
+        /* 基础容器设置 - 用于旋转 */
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
-            padding-top: 70px;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .page-container {
+            min-height: 100vh;
+            width: 100%;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            padding-top: 70px;
         }
 
         /* 1. 固定导航区 */
@@ -185,7 +184,7 @@
             overflow: hidden;
         }
 
-        /* 图片展示区（移除轮播相关无用样式） */
+        /* 图片展示区 */
         .image-carousel {
             position: relative;
             width: 100%;
@@ -522,103 +521,136 @@
             box-shadow: 0 6px 16px rgba(74, 108, 247, 0.3);
         }
 
-        /* 响应式适配 - 平板 */
-        @media (max-width: 992px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .image-carousel {
-                height: 400px;
-            }
-        }
-
-        /* 响应式适配 - 手机（核心修改） */
-        @media (max-width: 576px) {
-            /* 页面整体旋转90度并适配 */
-            .page-wrapper {
+        /* ========== 移动端旋转90度 + 适配 ========== */
+        @media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+            /* 整个页面容器旋转90度 */
+            .page-container {
+                transform: rotate(90deg);
+                transform-origin: center center;
                 width: 100vh;
                 height: 100vw;
-                transform: rotate(90deg);
-                transform-origin: top left;
                 position: fixed;
                 top: 0;
                 left: 0;
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-            
-            /* 重置body样式以适配旋转后的容器 */
-            body {
                 padding-top: 0;
-                min-height: 100vw;
-                width: 100vh;
-                overflow: hidden;
+                margin-top: calc((100vw - 100vh) / 2);
             }
-            
-            /* 调整旋转后的内容尺寸和布局 */
+
+            /* 调整导航栏适配旋转后的布局 */
+            .navbar {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100vh;
+                height: 70px;
+                padding: 0 15px;
+            }
+
+            /* 核心容器适配 */
             .container {
-                max-width: calc(100vh - 40px);
-                margin: 70px auto 20px;
+                max-width: none;
+                width: calc(100vw - 40px);
+                margin: 20px auto;
+                grid-template-columns: 1fr;
                 padding: 0 10px;
             }
-            
-            /* 图片展示区适配 */
+
+            /* 图片区域适配 */
             .image-carousel {
-                height: 50vh;
-                max-height: 400px;
+                height: 300px;
             }
-            
-            /* 文字大小适配 */
+
+            /* 文字内容适配 */
             .post-title {
                 font-size: 18px;
             }
+            
             .post-body {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            /* 评论区适配 */
+            .comment-section {
+                padding: 15px;
+            }
+            
+            .comment-input {
+                height: 80px;
                 font-size: 14px;
             }
             
-            /* 导航栏适配 */
-            .navbar {
-                padding: 0 10px;
-                width: 100vh; /* 旋转后宽度变为原高度 */
-            }
-            .logo-text {
-                display: inline-block; /* 恢复显示logo文字 */
-                font-size: 16px;
-            }
-            .nav-icon {
-                font-size: 18px;
+            .comment-content {
+                font-size: 13px;
+                padding-left: 35px;
             }
             
-            /* 弹窗样式适配 */
+            .reply-content {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            /* 弹窗适配 */
             .modal-content {
                 padding: 15px 20px;
                 font-size: 16px;
-                max-width: 80vh;
+                max-width: 85%;
             }
+            
             .modal-close {
                 font-size: 20px;
             }
-            
+
             /* 底部按钮适配 */
             .footer-investigate-btn {
                 padding: 10px 24px;
                 font-size: 16px;
             }
-            
-            /* 评论区适配 */
-            .comment-section {
-                padding: 15px;
-            }
-            .comment-content {
-                padding-left: 35px;
-            }
-            .comment-replies {
-                margin-left: 35px;
+
+            /* 调整logo和图标 */
+            .logo-text {
+                display: inline-block;
+                font-size: 16px;
             }
             
+            .nav-icon {
+                font-size: 18px;
+            }
+
             /* 搜索框适配 */
             .search-container {
                 max-width: 400px;
+            }
+            
+            .search-input {
+                font-size: 13px;
+                padding: 0 15px;
+            }
+        }
+
+        /* 更小的移动端设备优化 */
+        @media screen and (max-width: 480px), screen and (max-device-width: 480px) {
+            .page-container {
+                margin-top: calc((100vw - 100vh) / 2);
+            }
+
+            .image-carousel {
+                height: 250px;
+            }
+
+            .post-title {
+                font-size: 16px;
+            }
+            
+            .post-body {
+                font-size: 13px;
+            }
+
+            .footer-investigate-btn {
+                padding: 8px 20px;
+                font-size: 14px;
             }
         }
     </style>
@@ -626,8 +658,8 @@
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 新增：页面根容器，用于旋转 -->
-    <div class="page-wrapper">
+    <!-- 新增页面容器，用于旋转 -->
+    <div class="page-container">
         <!-- 1. 固定导航区 -->
         <nav class="navbar">
             <div class="logo">
@@ -860,12 +892,12 @@
         <div class="footer-investigate">
             <button class="footer-investigate-btn" id="footerInvestigateBtn">阅读完毕，进行信息分析</button>
         </div>
+    </div>
 
-        <!-- 弹窗容器 -->
-        <div class="modal-overlay" id="modalOverlay">
-            <button class="modal-close" id="modalClose">&times;</button>
-            <div class="modal-content" id="modalContent"></div>
-        </div>
+    <!-- 弹窗容器 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <button class="modal-close" id="modalClose">&times;</button>
+        <div class="modal-content" id="modalContent"></div>
     </div>
 
     <script>
@@ -944,25 +976,18 @@
                 if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
             });
 
-            // 底部按钮跳转（当前页面跳转）
+            // 底部按钮跳转
             document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
-                // 直接修改当前页面的URL，实现本页面跳转
                 window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
             });
-            
-            // 新增：处理旋转后的页面滚动问题
-            function adjustRotationLayout() {
-                const wrapper = document.querySelector('.page-wrapper');
-                if (window.innerWidth <= 576) {
-                    wrapper.style.height = window.innerWidth + 'px';
-                    wrapper.style.width = window.innerHeight + 'px';
+
+            // 监听窗口大小变化，重新适配旋转布局
+            window.addEventListener('resize', function() {
+                const pageContainer = document.querySelector('.page-container');
+                if (window.innerWidth <= 768) {
+                    pageContainer.style.marginTop = `calc((100vw - 100vh) / 2)`;
                 }
-            }
-            
-            // 监听窗口大小变化，实时调整布局
-            window.addEventListener('resize', adjustRotationLayout);
-            // 初始化时调整一次
-            adjustRotationLayout();
+            });
         });
     </script>
 </body>
