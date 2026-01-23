@@ -87,9 +87,11 @@
             overflow-x: hidden;
             transition: all 0.3s ease;
             z-index: 1;
-            /* 优化滚动体验 */
+            /* 优化滚动体验 - 增强手机端触摸滚动 */
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
+            touch-action: pan-y; /* 明确允许垂直触摸滚动 */
+            overscroll-behavior-y: contain; /* 防止滚动穿透 */
             /* 强制显示滚动条 */
             scrollbar-width: thin; /* Firefox */
             scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* Firefox */
@@ -104,6 +106,7 @@
             flex-direction: column;
             /* 禁止body滚动，由根容器完全接管 */
             overflow: hidden;
+            touch-action: none; /* 禁止body的触摸操作 */
         }
 
         /* 1. 固定导航区 - 手机端核心优化：放大图标、精简布局、提升点击区 */
@@ -661,11 +664,21 @@
                 -webkit-transform-origin: top left;
                 /* 手机端滚动条加宽，提升触控体验 */
                 scrollbar-width: auto;
+                /* 增强手机端滚动体验 */
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: y proximity;
             }
             
             /* 手机端滚动条适配旋转后的布局 */
             #page-wrapper::-webkit-scrollbar {
                 width: 10px;
+                /* 确保滚动条可触摸 */
+                -webkit-appearance: none;
+            }
+            
+            #page-wrapper::-webkit-scrollbar-thumb {
+                /* 增大滚动条滑块触控面积 */
+                min-height: 40px;
             }
 
             /* 弹窗同步旋转，完全贴合屏幕 */
@@ -1126,6 +1139,7 @@
             const modalOverlay = document.getElementById('modalOverlay');
             const modalContent = document.getElementById('modalContent');
             const modalClose = document.getElementById('modalClose');
+            const pageWrapper = document.getElementById('page-wrapper');
             
             // 打开弹窗 - 优化手机端点击判断，防止误触
             document.addEventListener('click', function(e) {
@@ -1138,8 +1152,8 @@
                     modalOverlay.classList.add('active');
                     
                     // 禁用滚动（保留，但增加兼容性）
-                    const pageWrapper = document.getElementById('page-wrapper');
                     pageWrapper.style.overflow = 'hidden';
+                    pageWrapper.style.touchAction = 'none';
                     // 强制重绘
                     void pageWrapper.offsetWidth;
                 }
@@ -1148,9 +1162,9 @@
             // 关闭弹窗函数 - 修复版：恢复滚动并强制重绘
             function closeModal() {
                 modalOverlay.classList.remove('active');
-                const pageWrapper = document.getElementById('page-wrapper');
                 // 1. 恢复滚动
                 pageWrapper.style.overflow = 'auto';
+                pageWrapper.style.touchAction = 'pan-y';
                 // 2. 强制触发重绘，解决移动端渲染延迟问题
                 void pageWrapper.offsetWidth;
                 // 3. 重置弹窗内容
@@ -1195,6 +1209,9 @@
                     wrapper.style.height = `${vw}px`;
                     modal.style.width = `${vh}px`;
                     modal.style.height = `${vw}px`;
+                    // 确保手机端滚动功能正常
+                    wrapper.style.overflowY = 'auto';
+                    wrapper.style['-webkit-overflow-scrolling'] = 'touch';
                 } else {
                     wrapper.style.width = '100vw';
                     wrapper.style.height = '100vh';
@@ -1221,6 +1238,13 @@
                     this.classList.add('loaded');
                 });
             });
+
+            // 额外优化：确保手机端滚动条始终可用
+            if ('ontouchstart' in window) {
+                // 移动端添加滚动条样式增强
+                pageWrapper.style.scrollbarWidth = 'auto';
+                pageWrapper.style.overflowY = 'auto';
+            }
         });
     </script>
 </body>
