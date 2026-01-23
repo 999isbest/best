@@ -2,1199 +2,1660 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 核心优化：viewport适配旋转后的屏幕，禁止用户缩放 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://picsum.photos https://p3-flow-imagex-download-sign.byteimg.com data:; font-src 'self' https://cdn.bootcdn.net; connect-src 'self'; frame-src 'self' https://999isbest.github.io;">
-    <title>得知自己是人类，哭了整整一个下午…… - 鸣屿论坛</title>
+    <!-- 关键修改：添加viewport设置确保移动端适配 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>信息分析系统</title>
     <style>
-        /* 全局样式重置 - 优化盒模型和触控点击 */
+        /* 重置样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
-            /* 优化手机端点击高亮 */
-            -webkit-tap-highlight-color: transparent;
-            tap-highlight-color: transparent;
-            /* 禁止文本选中干扰操作 */
-            user-select: none;
-        }
-        /* 可输入/可阅读区域恢复文本选中 */
-        input, textarea, p, h1, .comment-content, .modal-content {
-            user-select: text;
-        }
-
-        /* 核心配色保留 */
-        :root {
-            --primary-gradient: linear-gradient(135deg, #4a6cf7 0%, #8b5cf6 100%);
-            --primary-blue: #4a6cf7;
-            --primary-purple: #8b5cf6;
-            --text-main: #333;
-            --text-secondary: #666;
-            --text-light: #999;
-            --text-link: #4a6cf7;
-            --bg-main: #f8f9fa;
-            --bg-card: #fff;
-            --border-color: #e5e7eb;
-            --hover-color: #f0f2f5;
-            --author-tag-bg: #4a6cf7;
-            --author-tag-text: #fff;
-            --tooltip-bg: #e0f7ff;
-            --tooltip-border: #b3e5fc;
-            --tooltip-text: #01579b;
-            /* 新增：手机端触控最小点击区域 */
-            --min-touch-size: 44px;
-            /* 新增：滚动条配色 */
-            --scrollbar-thumb: #c1c1c1;
-            --scrollbar-thumb-hover: #a8a8a8;
-            --scrollbar-track: #f1f1f1;
-        }
-
-        /* ========== 核心新增：自定义滚动条样式 ========== */
-        /* 通用滚动条样式 - 适配所有可滚动区域 */
-        ::-webkit-scrollbar {
-            width: 8px;  /* 垂直滚动条宽度 */
-            height: 8px; /* 水平滚动条高度 */
-        }
-        /* 滚动条轨道 */
-        ::-webkit-scrollbar-track {
-            background: var(--scrollbar-track);
-            border-radius: 4px;
-        }
-        /* 滚动条滑块 */
-        ::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 4px;
-            transition: background 0.2s ease;
-        }
-        /* 滚动条滑块hover状态 */
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--scrollbar-thumb-hover);
-        }
-        /* 圆角滚动条 */
-        ::-webkit-scrollbar-corner {
-            background: transparent;
-        }
-
-        /* 根容器 - 旋转核心，优化滚动和层级 */
-        #page-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            transition: all 0.3s ease;
-            z-index: 1;
-            /* 优化滚动体验 */
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            /* 强制显示滚动条 */
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* Firefox */
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding-top: 70px;
+            background: #000814;
+            color: #6366f1;
+            font-family: 'Courier New', monospace;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            /* 禁止body滚动，由根容器接管 */
-            overflow: hidden;
+            position: relative;
+            overflow: auto; /* 确保页面可以正常滚动 */
+            transition: all 0.3s ease; /* 添加旋转过渡动画 */
         }
 
-        /* 1. 固定导航区 - 手机端核心优化：放大图标、精简布局、提升点击区 */
-        .navbar {
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        /* ========== 加载动画样式 ========== */
+        #loading-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            height: 70px;
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            z-index: 999;
+            background: #000814;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out;
         }
 
-        .logo {
+        /* 标题动画样式 */
+        .echo-title {
+            font-size: 6rem;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.7),
+                         0 0 20px rgba(56, 189, 248, 0.5);
+            animation: pulse 2s infinite alternate;
+            text-align: center;
+        }
+
+        /* 标题呼吸动画 */
+        @keyframes pulse {
+            from { opacity: 0.8; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* 副标题样式 */
+        .singularity-log {
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 50px;
+            color: #93c5fd;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* 加载日志文本容器 */
+        .loading-log {
+            width: 400px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+            text-align: left;
+        }
+
+        /* 加载日志文本渐入动画 */
+        .loading-log p {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        /* 逐个延迟显示日志文本 */
+        .loading-log p:nth-child(1) { animation-delay: 0.2s; }
+        .loading-log p:nth-child(2) { animation-delay: 0.5s; }
+        .loading-log p:nth-child(3) { animation-delay: 0.8s; }
+        .loading-log p:nth-child(4) { animation-delay: 1.1s; }
+        .loading-log p:nth-child(5) { animation-delay: 1.4s; }
+        .loading-log p:nth-child(6) { animation-delay: 1.7s; }
+
+        /* 日志文本淡入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 进度条容器 */
+        .progress-container {
+            width: 400px;
+            height: 8px;
+            background: #001233;
+            border: 1px solid #6366f1;
+            border-radius: 4px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 进度条样式 */
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #38bdf8, #8b5cf6);
+            width: 0%;
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+            animation: progressFill 3s ease-in-out forwards;
+        }
+
+        /* 进度条填充动画 */
+        @keyframes progressFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* 初始化按钮样式 */
+        .initialize-btn {
+            background: transparent;
+            border: 2px solid #6366f1;
+            color: #6366f1;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+        }
+
+        /* 按钮hover效果 */
+        .initialize-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* ========== 主页面样式 ========== */
+        :root {
+            --primary-dark: #0a1929;
+            --primary-blue: #112240;
+            --primary-light: #1a365d;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --text-white: #ffffff;
+            --text-light: #dbeafe;
+            --text-medium: #93c5fd;
+            --border-light: #93c5fd;
+            --border-medium: #60a5fa;
+            --shadow-blue: rgba(59, 130, 246, 0.3);
+            --shadow-cyan: rgba(6, 182, 212, 0.2);
+            --shadow-purple: rgba(139, 92, 246, 0.2);
+            /* 新增：新的青色强调色 */
+            --new-accent-cyan: #22d3ee;
+            /* 新增：传播链特殊色号 - 修改为青色 */
+            --chain-special-color: #22d3ee; /* 从橙色改为新的青色 #22d3ee */
+        }
+
+        .crt-container {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: auto 1fr;
+            grid-template-areas:
+                "header header"
+                "sidebar-left main";
+            gap: 16px;
+            padding: 16px;
+            background: var(--primary-dark);
+            color: var(--text-white);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            position: relative;
+            z-index: 1;
+            display: none; /* 默认隐藏主内容 */
+        }
+
+        .header {
+            grid-area: header;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light), #1e40af);
+            border: 2px solid var(--accent-blue);
+            padding: 20px 30px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow:
+                0 0 20px var(--shadow-blue),
+                0 0 8px rgba(96, 165, 250, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+        }
+
+        .header h1 {
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-size: 2.2rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 8px rgba(147, 197, 253, 0.3);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            /* 新增：标题两端对齐 */
+            text-align: justify;
+        }
+
+        .header h1::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-blue));
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        .record-date {
+            color: var(--text-medium);
+            font-size: 1.1rem;
+            border-left: 2px solid var(--accent-cyan);
+            padding-left: 24px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* 新增：日期文本两端对齐 */
+            text-align: justify;
+        }
+
+        .record-date::before {
+            content: "📅";
+            font-size: 1.2rem;
+        }
+
+        .sidebar-left {
+            grid-area: sidebar-left;
+            background: linear-gradient(180deg, var(--primary-blue), var(--primary-light), #1e40af);
+            border: 2px solid var(--border-medium);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            box-shadow:
+                0 0 15px var(--shadow-blue),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .sidebar-left::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple), var(--accent-pink));
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .nav-top {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+            padding: 16px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-top h3 {
+            color: var(--text-white);
+            /* 取消居中，改为两端对齐 */
+            text-align: justify;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            font-weight: 700;
+            letter-spacing: 2px;
+            /* 解决单行两端对齐无效问题 */
+            width: 100%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: rgba(17, 34, 64, 0.8);
+            border: 1px solid var(--accent-blue);
+            color: var(--text-light);
+            padding: 14px 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(90deg, var(--accent-blue), #2563eb);
+            color: var(--text-white);
+            font-weight: bold;
+            box-shadow: 0 0 12px var(--shadow-blue), 0 2px 8px rgba(0, 0, 0, 0.2);
+            transform: translateX(4px);
+            border-color: var(--text-white);
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn::after {
+            content: "▶";
+            font-size: 0.8rem;
+            color: var(--text-medium);
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover::after {
+            color: var(--text-white);
+            transform: translateX(4px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(90deg, #2563eb, var(--accent-purple));
+            color: var(--text-white);
+            font-weight: bold;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: var(--text-white);
+        }
+
+        .main-content-area {
+            grid-area: main;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light), #1e40af);
+            border: 2px solid var(--accent-blue);
+            padding: 30px;
+            overflow-y: auto;
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(96, 165, 250, 0.04) 1px, transparent 1px);
+            background-size: 20px 20px;
+            box-shadow:
+                0 0 20px var(--shadow-blue),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .content-section {
+            display: none;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.5);
+            padding-bottom: 30px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeInMain 0.5s ease;
+        }
+
+        @keyframes fadeInMain {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            color: var(--text-light);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-left: 5px solid;
+            border-image: linear-gradient(var(--accent-cyan), var(--accent-blue), var(--accent-purple)) 1;
+            padding-left: 20px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            /* 新增：标题两端对齐 */
+            text-align: justify;
+        }
+
+        .section-title::after {
+            content: "";
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--accent-blue), transparent);
+            margin-left: 15px;
+        }
+
+        .main-tab-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .main-tab-btn {
+            background: rgba(17, 34, 64, 0.8);
+            border: 1px solid var(--border-medium);
+            color: var(--text-light);
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.5;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-tab-btn::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            transition: width 0.3s ease;
+        }
+
+        .main-tab-btn:hover {
+            background: rgba(37, 99, 235, 0.8);
+            color: var(--text-white);
+            box-shadow: 0 0 10px var(--shadow-blue);
+            transform: translateY(-2px);
+        }
+
+        .main-tab-btn:hover::before {
+            width: 100%;
+        }
+
+        .main-tab-btn.active {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            color: var(--text-white);
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--shadow-blue), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: var(--text-white);
+        }
+
+        .content-card {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid;
+            border-image: linear-gradient(135deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan)) 1;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow:
+                0 0 20px var(--shadow-blue),
+                0 0 10px var(--shadow-purple),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            /* 保留卡片居中，但内部文本取消居中 */
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+        }
+
+        .content-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, transparent 50%, rgba(59, 130, 246, 0.1) 50%);
+            border-bottom-left-radius: 100%;
+        }
+
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 8px 25px var(--shadow-blue),
+                0 4px 15px var(--shadow-purple),
+                0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            color: var(--text-light);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            font-weight: 700;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--accent-cyan), transparent) 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            /* 新增：标题两端对齐 */
+            text-align: justify;
+        }
+
+        .card-title::before {
+            content: "📌";
+            font-size: 1.2rem;
+        }
+
+        .card-content {
+            color: var(--text-white);
+            line-height: 1.7;
+            font-size: 1.25rem;
+            letter-spacing: 0.3px;
+            /* 关键修改1：取消居中，改为两端对齐 */
+            text-align: justify;
+            /* 解决最后一行两端对齐问题 */
+            text-align-last: left;
+        }
+
+        .card-content p {
+            margin-bottom: 15px;
+            position: relative;
+            /* 关键修改2：取消居中，改为两端对齐 */
+            text-align: justify;
+            padding-left: 0;
+            /* 解决最后一行两端对齐问题 */
+            text-align-last: left;
+            /* 段首空两格 */
+            text-indent: 2em;
+        }
+
+        .card-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-content strong {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.2);
+        }
+
+        /* 新增：高亮文本样式，字号增大2号（原1.05rem → 1.25rem） */
+        .highlight-text {
+            font-size: 1.25rem !important;
+            font-weight: 500;
+            /* 确保两端对齐 */
+            text-align: justify !important;
+            text-align-last: left !important;
+            /* 段首空两格 */
+            text-indent: 2em !important;
+        }
+
+        /* 新增：括号内文字的突出强调样式 - 修改为新的青色 */
+        .emphasis-text {
+            color: var(--new-accent-cyan); /* 新的青色 #22d3ee */
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.5); /* 对应新青色的阴影 */
+            font-size: 1.3rem !important;
+        }
+
+        /* 新增：分析总结文本样式 - 字号增大2号，取消突出效果 */
+        .analysis-text {
+            font-size: 1.25rem !important; /* 比默认1.05rem大2号 */
+            font-weight: normal !important;
+            color: var(--text-white) !important;
+            text-shadow: none !important;
+            /* 确保两端对齐 */
+            text-align: justify !important;
+            text-align-last: left !important;
+            /* 段首空两格 */
+            text-indent: 2em !important;
+        }
+
+        /* 新增：下划线样式 - 用于传播链指定文本 */
+        .underline-text {
+            text-decoration: underline;
+            text-decoration-color: var(--new-accent-cyan);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+
+        /* 新增：传播链特殊色号样式 - 取消突出效果（移除font-weight和text-shadow） */
+        .chain-color-text {
+            color: var(--chain-special-color) !important;
+            font-weight: normal !important; /* 取消加粗 */
+            text-shadow: none !important; /* 取消文字阴影 */
+        }
+
+        /* ========== 关键修改：新增分析总结模块专用的取消突出样式 ========== */
+        #analysis .card-content .no-highlight {
+            color: var(--text-white) !important;
+            font-weight: normal !important;
+            text-shadow: none !important;
+            text-decoration: none !important;
+        }
+
+        /* 图片样式，保证图片自适应且美观 - 关键修改：缩小最大宽度 */
+        .reference-img {
+            width: 100%;
+            max-width: 400px; /* 从600px改为400px，缩小图片尺寸 */
+            margin: 20px auto; /* 图片仍居中显示 */
+            display: block;
+            border-radius: 8px;
+            border: 1px solid var(--accent-purple);
+            box-shadow: 0 0 15px var(--shadow-purple);
+            /* 新增：确保图片比例不变形 */
+            object-fit: contain;
+        }
+
+        /* ========== 新增：图片并排容器样式 ========== */
+        .img-row-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px auto;
+            justify-content: center;
+            flex-wrap: wrap;
+            /* 新增：为容器添加相对定位，方便放置标注 */
+            position: relative;
+        }
+
+        .img-row-container .reference-img {
+            max-width: 300px; /* 并排时图片宽度更小 */
+            margin: 0; /* 取消默认margin，用gap控制间距 */
+            flex: 1;
+            min-width: 200px; /* 最小宽度，防止太窄 */
+        }
+
+        /* ========== 新增：图片标注样式 ========== */
+        .img-caption {
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            /* 核心修改：改为居中对齐 */
+            text-align: center !important;
+            text-align-last: center !important;
+            margin-top: 10px;
+            font-style: italic;
+            width: 100%;
+            /* 确保块级元素占满宽度，居中生效 */
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            /* 取消段首缩进 */
+            text-indent: 0 !important;
+        }
+
+        /* 新增：九宫格下方标注样式 */
+        .grid-caption {
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            /* 核心修改：强制居中对齐 */
+            text-align: center !important;
+            text-align-last: center !important;
+            margin-top: 15px;
+            font-style: italic;
+            width: 100%;
+            /* 确保块级元素占满宽度，居中生效 */
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            /* 取消段首缩进 */
+            text-indent: 0 !important;
+        }
+
+        .copy-frame {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(17, 34, 64, 0.8);
+            border-radius: 10px;
+            border: 1px solid var(--accent-purple);
+        }
+
+        .frame-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--accent-purple);
+            color: var(--text-light);
+            padding: 15px;
+            margin-bottom: 15px;
+            resize: none;
+            height: 100px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.2);
+            transition: border-color 0.3s ease;
+        }
+
+        .frame-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.2), 0 0 8px var(--shadow-cyan);
+        }
+
+        .copy-btn {
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            border: 1px solid var(--border-medium);
+            color: var(--text-white);
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--primary-gradient);
+        .copy-btn:hover {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            color: var(--text-white);
+            font-weight: bold;
+            box-shadow: 0 0 12px var(--shadow-cyan);
+            transform: translateY(-2px);
+        }
+
+        .propagation-chain {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--accent-purple);
             border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.2);
+        }
+
+        .chain-node {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 18px;
+            padding: 12px;
+            border-left: 3px solid;
+            border-image: linear-gradient(var(--accent-blue), var(--accent-purple)) 1;
+            padding-left: 20px;
+            color: var(--text-white);
+            font-weight: 500;
+            line-height: 1.6;
+            background: rgba(17, 34, 64, 0.5);
+            border-radius: 0 8px 8px 0;
+            transition: transform 0.2s ease;
+            /* 新增：传播链文本两端对齐 */
+            text-align: justify;
+            /* 取消段首缩进 */
+            text-indent: 0 !important;
+            /* 关键修改：将字号调整为1.05rem */
+            font-size: 1.05rem;
+        }
+
+        .chain-node:hover {
+            transform: translateX(4px);
+            background: rgba(17, 34, 64, 0.7);
+        }
+
+        .chain-node:last-child {
+            margin-bottom: 0;
+        }
+
+        .node-dot {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-blue));
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-cyan), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .content-block {
+            display: none;
+        }
+
+        .content-block.active {
+            display: block;
+            animation: fadeInMain 0.4s ease;
+        }
+
+        .copy-toast {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-blue));
+            color: var(--text-white);
+            padding: 15px 30px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            font-weight: bold;
+            box-shadow: 0 0 20px var(--shadow-blue), 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 22px;
-            font-weight: bold;
+            gap: 10px;
+            z-index: 9999;
+            /* 提示文本两端对齐 */
+            text-align: justify;
+            /* 取消段首缩进 */
+            text-indent: 0 !important;
         }
 
-        .logo-text {
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .copy-toast::before {
+            content: "✓";
+            font-size: 1.2rem;
         }
 
-        .search-container {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 auto;
-            position: relative;
-            padding: 0 10px;
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateY(-10px);
         }
 
-        .search-input {
+        /* ========== 新增：下一步按钮样式 ========== */
+        .next-step-btn-container {
+            margin-top: 40px;
+            text-align: center; /* 按钮居中 */
             width: 100%;
-            height: 44px;
-            border: 1px solid var(--border-color);
-            border-radius: 22px;
-            padding: 0 20px;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s;
-            /* 优化输入框光标 */
-            caret-color: var(--primary-blue);
         }
 
-        .search-input:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.1);
+        .next-step-btn {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan), var(--accent-blue));
+            border: 2px solid var(--text-white);
+            color: var(--text-white);
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px var(--shadow-purple), 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            text-decoration: none;
         }
 
-        .search-suggestions {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            right: 10px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 10px 0;
-            display: none;
-            z-index: 998;
-            font-size: 16px;
-            /* 搜索建议框添加滚动条 */
-            max-height: 200px;
-            overflow-y: auto;
+        .next-step-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px var(--shadow-cyan), 0 6px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
         }
 
-        .search-suggestions.show {
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--primary-blue);
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 5px;
+            box-shadow: 0 0 8px var(--shadow-blue), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
+            box-shadow: 0 0 10px var(--shadow-cyan);
+        }
+
+        /* ========== 九宫格游戏样式（适配科技风） ========== */
+        /* 提示信息样式 - 核心修改：改为居中显示 */
+        .hint {
+            font-size: 18px;
+            color: var(--new-accent-cyan);
+            margin-bottom: 20px;
+            min-height: 24px;
+            /* 核心修改：改为水平居中 */
+            text-align: center !important;
+            text-align-last: center !important;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+            /* 取消段首缩进 */
+            text-indent: 0 !important;
+            /* 确保宽度100%，居中生效 */
+            width: 100%;
             display: block;
         }
 
-        .suggestion-item {
-            padding: 12px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .suggestion-item:hover {
-            background-color: var(--hover-color);
-        }
-
-        /* 顶部右上角：消息+个人中心图标 - 放大点击区域 */
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .nav-icon {
-            font-size: 24px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            width: var(--min-touch-size);
-            height: var(--min-touch-size);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-        .nav-icon:hover {
-            color: var(--primary-blue);
-            background-color: var(--hover-color);
-        }
-
-        /* 2. 核心布局：栅格化双栏 - 优化间距和自适应 */
-        .container {
-            max-width: 1200px;
-            margin: 15px auto;
+        /* 九宫格容器样式 - 改为相对定位，用于承载结果文本 */
+        .grid-container {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 15px;
-            padding: 0 15px;
-            flex: 1;
-        }
-
-        /* 左侧核心内容区 - 优化圆角和阴影，更贴合手机视觉 */
-        .content-main {
-            background: var(--bg-card);
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            overflow: hidden;
-        }
-
-        /* 图片展示区 - 核心优化：适配旋转后屏幕，降低高度，优化加载 */
-        .image-carousel {
-            position: relative;
-            width: 100%;
-            height: 220px;
-            overflow: hidden;
-            background-color: #f8f8f8;
-        }
-
-        .carousel-item {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .carousel-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* 优化图片加载过渡 */
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        .carousel-img.loaded {
-            opacity: 1;
-        }
-
-        /* 帖子内容区 - 放大字体、增加内边距、优化行高 */
-        .post-content {
-            padding: 20px 18px;
-        }
-
-        .post-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 18px;
-            line-height: 1.5;
-        }
-
-        .post-body {
-            font-size: 17px;
-            line-height: 1.85;
-            color: var(--text-main);
-            margin-bottom: 20px;
-        }
-
-        .post-body p {
-            margin-bottom: 18px;
-        }
-        /* 蓝色文字框 - 手机端优化：放大尺寸、增加内边距、提升点击体验 */
-        .tooltip-box {
-            background-color: var(--tooltip-bg);
-            border: 1px solid var(--tooltip-border);
-            color: var(--tooltip-text);
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: inline-block;
-            margin: 0 3px;
-            transition: all 0.2s ease;
-            z-index: 100;
-            position: relative;
-            font-size: 16px;
-            /* 触控最小点击区 */
-            min-height: 32px;
-            line-height: 1.4;
-        }
-        .tooltip-box:hover {
-            background-color: #b3e5fc;
-            transform: scale(1.03);
-        }
-
-        .post-tags {
-            display: flex;
-            flex-wrap: wrap;
+            grid-template-columns: repeat(3, 120px); /* 列宽按3:4比例的宽设定 */
+            grid-template-rows: repeat(3, 160px);    /* 行高=宽*4/3=120*4/3=160px，保证3:4比例 */
             gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .tag {
-            padding: 7px 15px;
-            background-color: var(--hover-color);
-            border-radius: 20px;
-            font-size: 15px;
-            color: var(--primary-purple);
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .tag:hover {
-            background: var(--primary-gradient);
-            color: #fff;
-        }
-
-        /* 右侧互动区：仅保留评论区 - 优化层级和间距 */
-        .content-side {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        /* 评论区 - 核心优化：放大字体、增加内边距、优化触控 */
-        .comment-section {
-            background: var(--bg-card);
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            padding: 18px;
+            margin: 20px auto;
+            position: relative; /* 新增：作为结果文本的父容器 */
+            justify-content: center;
+            /* ========== 关键修改：确保容器有足够空间让内容居中 ========== */
+            width: fit-content;
             height: fit-content;
-            /* 评论区添加滚动条 */
-            max-height: 80vh;
-            overflow-y: auto;
         }
 
-        /* 评论输入框及功能栏 - 放大输入框、优化功能按钮 */
-        .comment-input-wrapper {
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+        /* 图片格子样式 - 固定3:4比例（适配科技风） */
+        .grid-item {
+            width: 120px;       /* 宽：120px */
+            height: 160px;      /* 高：160px（120*4/3），严格3:4比例 */
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+            border: 2px solid var(--accent-blue);
+            border-radius: 8px;
             overflow: hidden;
-        }
-        .comment-func-bar {
-            display: flex;
-            align-items: center;
-            padding: 10px 18px;
-            border-bottom: 1px solid var(--border-color);
-            gap: 25px;
-        }
-        .func-item {
-            display: flex;
-            align-items: center;
-            font-size: 20px;
-            color: var(--text-secondary);
             cursor: pointer;
-            width: var(--min-touch-size);
-            height: 30px;
-            justify-content: center;
-        }
-        .func-item:hover {
-            color: var(--primary-blue);
-        }
-        .comment-input {
-            width: 100%;
-            height: 70px;
-            border: none;
-            padding: 15px 18px;
-            font-size: 16px;
-            outline: none;
-            resize: none;
-            background: transparent;
-            caret-color: var(--primary-blue);
-            line-height: 1.5;
-        }
-        .comment-input::placeholder {
-            color: var(--text-light);
-        }
-        .comment-submit {
-            margin-top: 10px;
-            text-align: right;
-        }
-        .submit-btn {
-            padding: 9px 20px;
-            background: var(--primary-gradient);
-            color: #fff;
-            border: none;
-            border-radius: 22px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 90px;
-        }
-        .submit-btn:disabled {
-            background: var(--border-color);
-            cursor: not-allowed;
-            color: #ccc;
-        }
-
-        /* 评论通用样式 - 放大头像、字体，优化间距 */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--hover-color);
-            flex-shrink: 0;
-        }
-        .comment-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .comment-author-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .comment-author {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        .author-tag {
-            font-size: 12px;
-            color: var(--author-tag-text);
-            background: var(--author-tag-bg);
-            padding: 2px 6px;
-            border-radius: 4px;
-            line-height: 1;
-        }
-        .comment-time {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-left: auto;
-        }
-        .comment-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .comment-item {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 18px;
-        }
-        .comment-item:last-child {
-            border-bottom: none;
-        }
-        .comment-content {
-            font-size: 15px;
-            line-height: 1.7;
-            margin-bottom: 12px;
-            padding-left: 50px;
-        }
-        /* 回复区样式 - 优化背景和间距，放大字体 */
-        .comment-replies {
-            margin-left: 50px;
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .reply-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .reply-content {
-            background: var(--hover-color);
-            padding: 10px 14px;
-            border-radius: 10px;
-            color: var(--text-secondary);
-            flex: 1;
-        }
-        .reply-at {
-            color: var(--text-link);
-            font-weight: 600;
-        }
-        .expand-btn {
-            background: none;
-            border: none;
-            color: var(--primary-blue);
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 8px;
-            padding: 8px 0;
-            width: 100%;
-            text-align: left;
-        }
-        .expand-btn:hover {
-            color: var(--primary-purple);
-        }
-
-        /* 弹窗样式 - 手机端核心优化：放大尺寸、优化圆角、提升触控 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            position: relative; /* 辅助图片定位 */
+            z-index: 1; /* 确保图片在文本上方 */
+            box-shadow: 0 0 10px var(--shadow-blue), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* 图片样式 - 按3:4比例适配，不拉伸变形 */
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;  /* 保持图片比例，裁剪多余部分，不拉伸 */
+            object-position: center; /* 居中显示图片核心内容 */
+            transition: all 0.2s ease;
+            border-radius: 6px;
+        }
+
+        /* 隐藏图片后的样式 */
+        .grid-item.hidden {
             opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            /* 优化弹窗遮罩触控 */
-            touch-action: none;
+            cursor: default;
+            pointer-events: none; /* 防止点击已隐藏的元素 */
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
+        /* 正确点击的动画效果（科技风适配） */
+        .grid-item.correct-click {
+            border-color: var(--accent-cyan); /* 青色边框标识正确 */
+            box-shadow: 0 0 15px var(--shadow-cyan);
+            transform: scale(0.95); /* 轻微缩小效果 */
         }
 
-        .modal-content {
-            background-color: white;
-            padding: 25px 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            max-width: 90%;
-            width: 450px;
-            font-size: 18px;
-            line-height: 1.9;
-            transform: translateY(-20px);
-            transition: all 0.3s ease;
-            position: relative;
-            text-align: center;
-            /* 弹窗内容添加滚动条 */
-            max-height: 70vh;
-            overflow-y: auto;
+        /* 错误点击的动画效果（科技风适配） */
+        .grid-item.wrong-click {
+            border-color: var(--accent-pink); /* 粉色边框标识错误 */
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+            animation: shake 0.3s ease; /* 抖动动画 */
         }
 
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
+        /* 抖动动画关键帧 */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
         }
 
-        .modal-close {
+        /* 最终文本显示样式 - 科技风适配 */
+        .result-text {
+            font-size: 1.25rem; /* 修改：字号改为1.25rem */
+            line-height: 1.6;
+            color: var(--text-light);
+            max-width: 600px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+            border: 1px solid var(--accent-purple);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 0 15px var(--shadow-purple);
+            /* 核心修改：绝对定位覆盖九宫格区域 */
             position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 28px;
-            color: #666;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 8px;
-            z-index: 1001;
-            /* 放大关闭按钮点击区 */
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .modal-close:hover {
-            color: #333;
-            background-color: var(--hover-color);
-        }
-
-        /* 网页底部深入调查按钮 - 优化尺寸和触控 */
-        .footer-investigate {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
-            padding: 25px 20px;
-            background-color: var(--bg-main);
+            height: 100%;
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        .footer-investigate-btn {
-            background: var(--primary-gradient);
-            color: #fff;
-            border: none;
-            border-radius: 28px;
-            padding: 15px 40px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 15px rgba(74, 108, 247, 0.2);
-            user-select: none;
-            /* 最小触控区 */
-            min-width: 200px;
-            text-align: center;
-        }
-        .footer-investigate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(74, 108, 247, 0.3);
+            justify-content: flex-start;
+            box-sizing: border-box;
+            /* 透明度初始为0，通过类控制显示 */
+            opacity: 0;
+            transition: opacity 0.8s ease; /* 平滑的透明度过渡 */
+            z-index: 0; /* 确保文本在图片下方，图片消失后显示 */
+            /* 关键修改：结果文本两端对齐，取消居中 */
+            text-align: justify;
+            text-align-last: left;
+            /* 段首空两格 */
+            text-indent: 2em;
         }
 
-        /* 平板端适配（992px以下）- 轻量化过渡 */
-        @media (max-width: 992px) {
-            .container {
-                grid-template-columns: 1.3fr 1fr;
-                gap: 12px;
-                padding: 0 12px;
-                margin: 12px auto;
-            }
-            .image-carousel {
-                height: 200px;
-            }
-            .post-content {
-                padding: 18px 15px;
-            }
-            .comment-section {
-                padding: 15px;
-                max-height: 75vh;
-            }
+        /* 新增：文本显示的类 */
+        .result-text.show {
+            opacity: 1;
+            z-index: 2; /* 显示时层级高于隐藏的图片 */
         }
 
-        /* 手机端核心适配（576px以下）- 旋转+布局全优化 */
-        @media (max-width: 576px) {
-            /* 根容器旋转90度 - 核心保留，优化适配 */
-            #page-wrapper {
+        /* ========== 核心修改：手机端适配样式（修复滚动问题） ========== */
+        @media only screen and (max-width: 767px) {
+            /* 关键修改：移除fixed定位，改用relative */
+            body {
+                transform: rotate(90deg);
+                transform-origin: center center;
+                width: 100vh;
+                min-height: 100vw; /* 改为min-height，允许内容撑开 */
+                position: relative; /* 移除fixed，恢复relative */
+                top: 0;
+                left: 0;
+                overflow-y: auto; /* 明确开启垂直滚动 */
+                overflow-x: hidden;
+                /* 保持居中，但不使用flex */
+                margin: 0 auto;
+            }
+
+            /* 适配加载页面 */
+            #loading-screen {
                 width: 100vh;
                 height: 100vw;
-                transform: rotate(90deg) translateY(-100%);
-                transform-origin: top left;
-                -webkit-transform: rotate(90deg) translateY(-100%);
-                -webkit-transform-origin: top left;
-                /* 手机端滚动条加宽，提升触控体验 */
-                scrollbar-width: auto;
-            }
-            
-            /* 手机端滚动条适配旋转后的布局 */
-            #page-wrapper::-webkit-scrollbar {
-                width: 10px;
+                /* 加载页面也居中 */
+                justify-content: center;
+                align-items: center;
+                position: fixed; /* 加载页保持fixed */
             }
 
-            /* 弹窗同步旋转，完全贴合屏幕 */
-            .modal-overlay {
-                transform: rotate(90deg) translateY(-100%);
-                transform-origin: top left;
-                -webkit-transform: rotate(90deg) translateY(-100%);
-                -webkit-transform-origin: top left;
-                width: 100vh;
-                height: 100vw;
-                touch-action: auto;
+            .echo-title {
+                font-size: 3rem; /* 缩小手机端标题字号 */
             }
 
-            /* 导航栏 - 极致精简，适配旋转后高度 */
-            .navbar {
-                padding: 0 10px;
-                height: 65px;
-            }
-            .logo-text {
-                display: none;
-            }
-            .search-container {
-                max-width: 400px;
-            }
-            .search-input {
-                height: 40px;
-                font-size: 15px;
+            .loading-log {
+                width: 80%; /* 适配手机宽度 */
             }
 
-            /* 核心布局 - 双栏微调，减少间距，避免挤压 */
-            .container {
-                grid-template-columns: 1.1fr 1fr;
+            .progress-container {
+                width: 80%; /* 适配手机宽度 */
+            }
+
+            /* 适配主内容容器 */
+            .crt-container {
+                grid-template-columns: 1fr; /* 手机端改为单列布局 */
+                grid-template-rows: auto auto 1fr;
+                grid-template-areas:
+                    "header"
+                    "sidebar-left"
+                    "main";
+                width: 100%;
+                min-height: 100%; /* 改为min-height，允许内容撑开 */
+                padding: 10px;
                 gap: 10px;
-                margin: 10px auto;
-                padding: 0 10px;
+                /* 确保主容器居中 */
+                margin: 0 auto;
             }
 
-            /* 图片区 - 适配旋转后屏幕，进一步优化高度 */
-            .image-carousel {
-                height: 180px;
+            /* 适配头部 */
+            .header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
             }
 
-            /* 帖子内容 - 字体适配，减少冗余间距 */
-            .post-title {
-                font-size: 19px;
+            .header h1 {
+                font-size: 1.2rem;
+                letter-spacing: 2px;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .record-date {
+                font-size: 0.9rem;
+                padding-left: 10px;
+                justify-content: center;
+                width: 100%;
+                border-left: none;
+            }
+
+            /* 适配侧边栏 */
+            .sidebar-left {
+                padding: 10px;
+            }
+
+            .nav-top h3 {
+                font-size: 1rem;
+                text-align: center;
+            }
+
+            .nav-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
+            /* 适配主内容区 */
+            .main-content-area {
+                padding: 15px;
+                height: auto; /* 移除固定高度，改为auto */
+                max-height: calc(100vh - 200px); /* 限制最大高度，避免溢出 */
+                overflow-y: auto; /* 主内容区内部滚动 */
+            }
+
+            .section-title {
+                font-size: 1.4rem;
                 margin-bottom: 15px;
-            }
-            .post-body {
-                font-size: 16px;
-                line-height: 1.8;
-                margin-bottom: 18px;
-            }
-            .post-body p {
-                margin-bottom: 15px;
-            }
-            .tag {
-                padding: 6px 12px;
-                font-size: 14px;
+                justify-content: center;
             }
 
-            /* 评论区 - 轻量化适配，保留核心体验 */
-            .comment-section {
-                padding: 15px 12px;
-                max-height: 70vh;
-            }
-            .comment-input {
-                height: 65px;
-                padding: 12px 15px;
-                font-size: 15px;
-            }
-            .submit-btn {
-                padding: 8px 18px;
-                font-size: 15px;
-            }
-            .comment-author {
-                font-size: 15px;
-            }
-            .comment-time {
-                font-size: 12px;
-            }
-            .comment-content {
-                font-size: 14px;
-                padding-left: 45px;
-                line-height: 1.65;
-            }
-            .comment-replies {
-                margin-left: 45px;
-                gap: 12px;
-            }
-            .reply-item {
-                font-size: 13px;
-            }
-            .reply-content {
-                padding: 8px 12px;
+            /* 适配卡片 */
+            .content-card {
+                padding: 15px;
+                max-width: 100%;
             }
 
-            /* 弹窗 - 适配旋转后触控，微调尺寸 */
-            .modal-content {
-                padding: 22px 25px;
-                font-size: 17px;
-                max-width: 92%;
-                max-height: 65vh;
-            }
-            .modal-close {
-                font-size: 26px;
-                width: 40px;
-                height: 40px;
+            .card-title {
+                font-size: 1.2rem;
+                justify-content: center;
             }
 
-            /* 底部按钮 - 适配旋转后屏幕，微调尺寸 */
-            .footer-investigate-btn {
-                padding: 13px 35px;
-                font-size: 17px;
-                min-width: 180px;
+            .card-content {
+                font-size: 1rem;
             }
-        }
 
-        /* 小屏手机适配（375px以下，如SE/迷你机） */
-        @media (max-width: 375px) {
-            .container {
-                grid-template-columns: 1.05fr 1fr;
+            /* 适配图片 */
+            .reference-img {
+                max-width: 100%;
             }
-            .image-carousel {
-                height: 160px;
+
+            .img-row-container {
+                gap: 10px;
             }
-            .post-title {
-                font-size: 18px;
+
+            .img-row-container .reference-img {
+                max-width: 45%;
+                min-width: 150px;
             }
-            .post-body {
-                font-size: 15px;
+
+            /* 适配九宫格 */
+            .grid-container {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 106px);
+                gap: 5px;
             }
-            .tooltip-box {
-                padding: 3px 7px;
-                font-size: 15px;
+
+            .grid-item {
+                width: 80px;
+                height: 106px;
             }
-            .footer-investigate-btn {
-                padding: 12px 30px;
-                font-size: 16px;
-            }
-            .comment-section {
-                max-height: 65vh;
-            }
-            .modal-content {
-                max-height: 60vh;
+
+            /* 适配按钮 */
+            .next-step-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+                letter-spacing: 2px;
             }
         }
     </style>
-    <!-- 引入图标库 -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 根容器包裹所有内容 -->
-    <div id="page-wrapper">
-        <!-- 1. 固定导航区 -->
-        <nav class="navbar">
-            <div class="logo">
-                <div class="logo-icon">鸣</div>
-                <div class="logo-text">鸣屿论坛</div>
-            </div>
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="请输入关键词或话题" id="searchInput">
-                <div class="search-suggestions" id="searchSuggestions">
-                    <div class="suggestion-item">#参考文献 梗</div>
-                    <div class="suggestion-item">得知自己是人类，哭了整整一个下午……</div>
-                    <div class="suggestion-item">#精神状态 搞笑</div>
-                    <div class="suggestion-item">基因检测 有趣结果</div>
-                    <div class="suggestion-item">#老鼠 自嘲 文案</div>
-                </div>
-            </div>
-            <div class="nav-right">
-                <div class="nav-icon" id="msgIcon">
-                    <i class="far fa-bell"></i>
-                </div>
-                <div class="nav-icon" id="userIcon">
-                    <i class="far fa-user"></i>
-                </div>
-            </div>
-        </nav>
+    <!-- 加载动画区域 -->
+    <div id="loading-screen">
+        <h1 class="echo-title">Data loading...</h1>
+        <div class="singularity-log">SINGULARITY LOG</div>
 
-        <!-- 2. 核心内容区 -->
-        <div class="container">
-            <div class="content-main">
-                <div class="image-carousel">
-                    <div class="carousel-item">
-                        <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fd62076a5b6a414fb3d9b4460ecdc7b4.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260117214814412F45B474C6832D43D2&rrcfp=8a172a1a&x-expires=1769262494&x-signature=UGOn%2FgRtPqY5M96igQR6cqHYC9s%3D" 
-                             alt="老鼠基因检测插画" 
-                             class="carousel-img"
-                             onload="this.classList.add('loaded')"
-                             onerror="this.src='https://picsum.photos/800/500?grayscale';this.classList.add('loaded');">
-                    </div>
-                </div>
-                <div class="post-content">
-                    <h1 class="post-title">
-                        <span class="tooltip-box" data-modal-content="发帖者无厘头的趣味分享">得知自己是人类，哭了整整一个下午……</span>
-                    </h1>
-                    <div class="post-body">
-                        <p>从昨天下午到现在，我真的…… 哭到抽搐，嗓子像被砂纸刮过，眼泪把整张床单都打湿了，眼角肿得像刚做完拉皮手术一样。</p>
-                        <p>两周前，我只是出于自嘲，给自己做了一个 DNA 检测。我一直以为，我可能是某种老鼠、臭虫，或某种社会边角料。毕竟，从小到大我就不觉得自己 “属于人类” 这个群体。没有人在意我，他们都不喜欢我，见到我都唯恐避之不及。</p>
-                        <p>昨天收到检测报告，本来没怎么在意，只是例行点开看看。</p>
-                        <p>看到第一行，我瞬间崩溃了：<br><strong>Human: 100%</strong></p>
-                        <p>我居然是人类！我以为我只是一只从下水道里意外爬进大学课堂的臭老鼠，是一只让所有人都欲除之的悲惨生物。</p>
-                        <p>但这条结果，像一道天雷劈在我头顶。我是人！我也是人！</p>
-                        <p>那一刻，过往所有被边缘化、自我怀疑、自暴自弃的时刻，全都找到了出口。原来我不是异类，不是废物，不是下水道跑出来的杂碎，我是一个有自己的尊严、有思维、有感情的真实人类！</p>
-                        <p>我真的太爱太爱我们人类了！</p>
-                        <p>我原以为，我只能在阴暗角落里活着，偷偷摸摸、低声下气。哪怕偶尔被人当成危害，我也已经感恩不尽。但现在我才知道，我不只是个旁观者，我是这个文明的一份子！</p>
-                        <p>其实我啊，早就是人了！</p>
-                        <p>这是 100% 的确认，我也要以 10000% 的热情活下去。我要用行动证明：<span style="color: #8b5cf6; font-weight: bold;">老鼠只是外号，人类才是自己。</span></p>
-                    </div>
-                    <div class="post-tags">
-                        <a href="#" class="tag">#罕见</a>
-                        <a href="#" class="tag">#基因</a>
-                        <a href="#" class="tag">#精神状态</a>
-                        <a href="#" class="tag">#萌宠</a>
-                        <a href="#" class="tag">#老鼠</a>
-                        <a href="#" class="tag">#废物</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-side">
-                <div class="comment-section">
-                    <div class="comment-input-wrapper">
-                        <div class="comment-func-bar">
-                            <div class="func-item" id="atFunc">
-                                <i class="fas fa-at"></i>
-                            </div>
-                            <div class="func-item" id="emojiFunc">
-                                <i class="far fa-smile"></i>
-                            </div>
-                            <div class="func-item" id="imgFunc">
-                                <i class="fas fa-image"></i>
-                            </div>
-                        </div>
-                        <textarea class="comment-input" placeholder="说点什么..."></textarea>
-                    </div>
-                    <div class="comment-submit">
-                        <button class="submit-btn" disabled>发布评论</button>
-                    </div>
-
-                    <!-- 评论列表 -->
-                    <div class="comment-list">
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">每天都在讨饭</span>
-                                </div>
-                                <span class="comment-time">2小时前</span>
-                            </div>
-                            <div class="comment-content">
-                                <span class="tooltip-box" data-modal-content="网友对抽象内容的趣味回复">请问参考文献是什么？</span>
-                            </div>
-                            <div class="comment-replies">
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/author/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*
-                                    </div>
-                                </div>
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <img src="https://picsum.photos/seed/comment2/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">快乐星球居民</span>
-                                </div>
-                                <span class="comment-time">1小时前</span>
-                            </div>
-                            <div class="comment-content">快来合影参考文献！@宇宙无敌美少女</div>
-                            <div class="comment-replies">
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment3/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <img src="https://picsum.photos/seed/comment4/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">学术卷王</span>
-                                </div>
-                                <span class="comment-time">1小时前</span>
-                            </div>
-                            <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！
-                                <span class="tooltip-box" data-modal-content="将具有强烈反差的学术格式与抽象内容相结合，产生了独特的趣味性">参考文献[1]：《得知自己是人类，哭了一下午》</span>
-                            </div>
-                            <div class="comment-replies">
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment5/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！
-                                    </div>
-                                </div>
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment6/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo
-                                    </div>
-                                </div>
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment7/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">吃瓜群众</span>
-                                </div>
-                                <span class="comment-time">50分钟前</span>
-                            </div>
-                            <div class="comment-content">这人……偶不，这鼠在说什么呢!</div>
-                            <div class="comment-replies">
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇
-                                    </div>
-                                </div>
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">生物课代表</span>
-                                </div>
-                                <span class="comment-time">30分钟前</span>
-                            </div>
-                            <div class="comment-content">
-                                <span class="tooltip-box" data-modal-content="网友对原帖的二次创作">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午......</span>
-                            </div>
-                            <div class="comment-replies">
-                                <div class="reply-item">
-                                    <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <img src="https://picsum.photos/seed/comment10/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">追瓜人</span>
-                                </div>
-                                <span class="comment-time">10分钟前</span>
-                            </div>
-                            <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
-                        </div>
-
-                        <button class="expand-btn">展开更多评论</button>
-                    </div>
-                </div>
-            </div>
+        <div class="loading-log">
+            <p>> Loading Memory Clusters...</p>
+            <p>> Decrypting Archive...</p>
+            <p>> Syncing Timeline Data...</p>
+            <p>> Optimizing Render Engine...</p>
+            <p>> Establishing Connection...</p>
+            <p>> ...</p>
         </div>
 
-        <div class="footer-investigate">
-            <button class="footer-investigate-btn" id="footerInvestigateBtn">阅读完毕，进行信息分析</button>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
         </div>
+
+        <button class="initialize-btn" id="initializeBtn">Start</button>
     </div>
 
-    <!-- 弹窗容器 -->
-    <div class="modal-overlay" id="modalOverlay">
-        <button class="modal-close" id="modalClose">&times;</button>
-        <div class="modal-content" id="modalContent"></div>
+    <!-- 主内容区 - 默认隐藏 -->
+    <div class="crt-container">
+        <!-- 顶部标题栏 -->
+        <header class="header">
+            <h1>信息分析系统 [CLASSIFIED LOG]</h1>
+            <div class="record-date">REC_DATE: 2026-01-21</div>
+        </header>
+
+        <!-- 左侧竖向导航栏 -->
+        <aside class="sidebar-left">
+            <div class="nav-top">
+                <h3>走红原因分析</h3>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn active" data-target="fun">趣味性</button>
+                <button class="nav-btn" data-target="interact">互动性</button>
+                <button class="nav-btn" data-target="spreadable">易传播性</button>
+                <button class="nav-btn" data-target="analysis">分析总结</button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content-area">
+            <!-- 1. 趣味性模块 - 核心修改区域 -->
+            <section id="fun" class="content-section active">
+                <h2 class="section-title">趣味性</h2>
+                <div class="content-card">
+                    <div class="card-content">
+                        <!-- 第一段文字 - 删除括号，保留强调样式 -->
+                        <p class="highlight-text">“参考文献”梗的走红，核心在于<span class="emphasis-text">学术格式与“抽象内容”结合</span>产生的趣味性。</p>
+                        <!-- 替换为新的图片链接 -->
+                        <img src="https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/913a8933c5b14224b69307705f914f35.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260121040942A09371296B95AF21F4BB&rrcfp=8a172a1a&x-expires=1769544582&x-signature=tMO4GS0HF%2Fq9T%2F11rX%2Bo%2Fhy5fC8%3D" alt="法考毁了我的女儿 参考文献梗示例" class="reference-img">
+                        <!-- 第二段文字 - 删除括号，保留强调样式 -->
+                        <p class="highlight-text">当网友们将学术论文中代表<span class="emphasis-text">权威、严谨的“参考文献”格式</span>应用于<span class="emphasis-text">日常琐碎、甚至无厘头的生活话题</span>上，其形成的强烈认知反差使表达产生了颇具吸引力的幽默效果。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 互动性模块 -->
+            <section id="interact" class="content-section">
+                <h2 class="section-title">互动性</h2>
+                <div class="main-tab-nav">
+                    <button class="main-tab-btn active" data-block="interact-fun-reply">趣味回复</button>
+                    <button class="main-tab-btn" data-block="interact-detour">迂回表达</button>
+                </div>
+                <div id="interact-fun-reply" class="content-block active">
+                    <div class="content-card">
+                        <h3 class="card-title">趣味回复</h3>
+                        <div class="card-content">
+                            <!-- ========== 已替换为新图片链接 ========== -->
+                            <img src="https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/1a5fec0cf5c64bedb9fb630258599743.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=2026012106110410CE70FC3F497F238F04&rrcfp=8a172a1a&x-expires=1769551865&x-signature=a2t%2FXM48Fkr%2FRvxwXfuj2P2r7ac%3D" alt="参考文献呢 震撼首发 趣味回复示例" class="reference-img">
+                            <!-- ========== 关键修改：添加highlight-text类统一字号为1.25rem ========== -->
+                            <p class="highlight-text">面对<span class="emphasis-text">抽象、无厘头的内容时</span>，网友们可以以”请问参考文献是什么？“等趣味回复融入帖子<span class="emphasis-text">幽默</span>的氛围。</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="interact-detour" class="content-block">
+                    <div class="content-card">
+                        <h3 class="card-title">迂回表达</h3>
+                        <div class="card-content">
+                            <!-- ========== 关键修改：替换第二张图片链接 ========== -->
+                            <div class="img-row-container">
+                                <!-- 第一张图片：保留原链接 -->
+                                <img src="https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/65fa3092eb7848349689f3aea48cddb7.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=202601210541129B2EBC0D3541A7211B10&rrcfp=8a172a1a&x-expires=1769550072&x-signature=4jAOkoajOukkKUM84uKMP0wOUUg%3D" alt="网络评论截图 迂回表达示例1" class="reference-img">
+                                <!-- 第二张图片：替换为指定的新图片链接 -->
+                                <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/814fab46136e4802bb98a6872c847f4d.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260121055859FE71BC75E014BC1762AB&rrcfp=8a172a1a&x-expires=1769551139&x-signature=SHSwFTo7BhAJK3RyXl0etkiPssw%3D" alt="参考文献呢 震撼首发 评论示例" class="reference-img">
+                                <!-- ========== 新增：图片下方添加小字标注 ========== -->
+                                <div class="img-caption">（两种表达方式的对比）</div>
+                            </div>
+                            <!-- ========== 按要求修改的内容 ========== -->
+                            <p class="highlight-text">面对<span class="emphasis-text">难以认同的观点</span>时，网友们可以通过询问“参考文献是什么？”、惊呼“震撼首发！”这种<span class="emphasis-text">迂回</span>的表达方式，巧妙地弱化语言的攻击性，从而避免因直接质疑而产生的尴尬或冲突。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 易传播性模块 -->
+            <section id="spreadable" class="content-section">
+                <h2 class="section-title">易传播性</h2>
+                <div class="main-tab-nav">
+                    <button class="main-tab-btn active" data-block="spread-copy-frame">复制框架</button>
+                    <button class="main-tab-btn" data-block="spread-chain">传播链</button>
+                </div>
+                <div id="spread-copy-frame" class="content-block active">
+                    <div class="content-card">
+                        <h3 class="card-title">复制框架</h3>
+                        <div class="card-content">
+                            <!-- 提示信息区域 -->
+                            <div class="hint" id="hint"></div>
+
+                            <!-- 九宫格容器 -->
+                            <div class="grid-container" id="gridContainer">
+                                <!-- 最终结果文本区域 - 移到九宫格容器内部 -->
+                                <div class="result-text" id="resultText">
+                                    “参考文献”梗标准化的复制框架，也降低了其传播门槛。网友只需保留“文献”的特定格式、替换具体主题，就能快速产生新的内容。
+                                </div>
+                                <!-- 九宫格图片会通过JS动态生成 -->
+                            </div>
+                            <!-- 新增：九宫格下方标注 -->
+                            <div class="grid-caption">（点击图片，找出相同格式的梗表达）</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="spread-chain" class="content-block">
+                    <div class="content-card">
+                        <h3 class="card-title">传播链</h3>
+                        <div class="card-content">
+                            <p>“参考文献”梗的传播路径：</p>
+                            <div class="propagation-chain">
+                                <div class="chain-node">
+                                    <div class="node-dot"></div>
+                                    <div>原始梗：得知自己是人类，哭了整整一个下午</div>
+                                </div>
+                                <div class="chain-node">
+                                    <div class="node-dot"></div>
+                                    <div>二次创作(替换语境)：得知自己是法学生，哭了整整一个下午 </div>
+                                </div>
+                                <div class="chain-node">
+                                    <div class="node-dot"></div>
+                                    <div>迭代传播(丰富格式)：得知自己是广东人，吃着白切鸡哭了整整一下午 </div>
+
+                                </div>
+                            </div>
+                            <!-- ========== 新增的补充说明文字 - 添加样式 ========== -->
+                            <p style="margin-top: 20px; text-align: justify; text-align-last: left;">
+                                <span class="underline-text">从“得知是广东人，吃着白切鸡哭了整整一个下午”的地域身份认同，到“得知周末要加班，摸鱼摸了一上午”的职场调侃</span>，标准化的格式使这一表达方式可批量化生产。<br>
+                            <p style="text-align: justify; text-align-last: left; text-indent: 2em; line-height: 1.6; margin: 0;">
+                             当一个帖子被标注为“参考文献”后，会成为新内容的引用素材，而新的素材又会被后续网友当作新的“文献”应用于各类语境，形成<span class="chain-color-text">不断更新迭代的传播链</span>。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 分析总结模块 - 已完成字号增大和取消突出效果 -->
+            <section id="analysis" class="content-section">
+                <h2 class="section-title">分析总结</h2>
+                <div class="content-card">
+                    <div class="card-content">
+                        <p class="analysis-text">“参考文献”梗的走红，核心在于学术格式与“抽象内容”结合产生的趣味性。当网友们将学术论文中代表权威、严谨的“参考文献”格式应用于日常琐碎、甚至无厘头的生活话题上，其形成的强烈认知反差使表达产生了颇具吸引力的幽默效果。面对难以认同的观点时，网友们可以通过“询问‘参考文献是什么？’”这种迂回的方式，巧妙地弱化表达的攻击性，从而避免因直接质疑而产生的尴尬或冲突。</p>
+                        <!-- ========== 关键修改：为这段文字添加no-highlight类，取消所有突出效果 ========== -->
+                        <p class="analysis-text no-highlight">除此之外，“参考文献”梗标准化的复制框架，也降低了其传播门槛。网友只需保留“文献”的特定格式、替换具体主题，就能快速产生新的内容。从“得知是广东人，吃着白切鸡哭了整整一个下午”的地域身份认同，到“得知周末要加班，摸鱼摸了一上午”的职场调侃，标准化的格式使这一表达方式可批量化生产——当一个帖子被标注为“参考文献”后，会成为新内容的引用素材，而新的素材又会被后续网友当作新的“文献”应用于各类语境，形成不断更新迭代的传播链。</p>
+                    </div>
+                </div>
+
+                <!-- ========== 新增：进入下一调查阶段按钮 ========== -->
+                <div class="next-step-btn-container">
+                    <a href="https://www.你的链接.com" class="next-step-btn" target="_blank">进入下一调查阶段</a>
+                </div>
+            </section>
+        </main>
     </div>
 
+    <!-- 复制成功提示 -->
+    <div class="copy-toast" id="copyToast">复制成功</div>
+
+    <!-- JavaScript逻辑 -->
     <script>
-        // 等待DOM加载完成
-        document.addEventListener('DOMContentLoaded', function() {
-            // 搜索框下拉推荐 - 优化手机端触控
-            const searchInput = document.getElementById('searchInput');
-            const searchSuggestions = document.getElementById('searchSuggestions');
+        // ========== 加载动画逻辑 ==========
+        const initializeBtn = document.getElementById('initializeBtn');
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainContent = document.querySelector('.crt-container');
 
-            searchInput.addEventListener('focus', () => searchSuggestions.classList.add('show'));
-            searchInput.addEventListener('input', () => searchSuggestions.classList.add('show'));
-            // 手机端优化：点击推荐项后关闭下拉
-            document.querySelectorAll('.suggestion-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    searchInput.value = item.textContent;
-                    searchSuggestions.classList.remove('show');
-                });
+        // 点击初始化按钮隐藏加载动画，显示主内容
+        initializeBtn.addEventListener('click', () => {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                mainContent.style.display = 'grid'; // 显示主内容
+            }, 800);
+        });
+
+        // 左侧导航按钮切换逻辑
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有active类
+                navBtns.forEach(b => b.classList.remove('active'));
+                contentSections.forEach(section => section.classList.remove('active'));
+
+                // 给当前按钮添加active类
+                this.classList.add('active');
+                // 显示对应内容区域
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
             });
-            // 点击外部关闭下拉，优化触控判断
-            document.addEventListener('click', (e) => {
-                if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
-                    searchSuggestions.classList.remove('show');
-                }
-            });
+        });
 
-            // 评论输入框：输入内容激活发布按钮 - 优化手机端输入体验
-            const commentInput = document.querySelector('.comment-input');
-            const submitBtn = document.querySelector('.submit-btn');
+        // ========== 修复后的主内容区标签切换逻辑 ==========
+        const mainTabBtns = document.querySelectorAll('.main-tab-btn');
 
-            commentInput.addEventListener('input', () => {
-                submitBtn.disabled = commentInput.value.trim() === '';
-            });
-            // 手机端优化：输入框聚焦时滚动到可视区
-            commentInput.addEventListener('focus', () => {
-                commentInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
+        mainTabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 1. 找到当前按钮所在的父级导航容器
+                const parentNav = this.closest('.main-tab-nav');
+                // 2. 只操作当前导航容器内的兄弟按钮
+                const siblingBtns = parentNav.querySelectorAll('.main-tab-btn');
 
-            // @功能：点击插入@符号 - 优化手机端光标定位
-            const atFunc = document.getElementById('atFunc');
-            atFunc.addEventListener('click', () => {
-                commentInput.focus();
-                const cursorPos = commentInput.selectionStart;
-                const val = commentInput.value;
-                commentInput.value = val.slice(0, cursorPos) + '@' + val.slice(cursorPos);
-                commentInput.selectionStart = commentInput.selectionEnd = cursorPos + 1;
-            });
+                // 3. 移除当前导航组内所有按钮的active类
+                siblingBtns.forEach(b => b.classList.remove('active'));
+                // 4. 给当前点击的按钮添加active类
+                this.classList.add('active');
 
-            // 表情/发图功能：点击聚焦
-            document.getElementById('emojiFunc').addEventListener('click', () => commentInput.focus());
-            document.getElementById('imgFunc').addEventListener('click', () => commentInput.focus());
+                // 5. 找到当前按钮所在的内容区域（section）
+                const targetSection = parentNav.closest('.content-section');
+                // 6. 只操作当前section内的内容块，而不是全局
+                const targetBlockId = this.getAttribute('data-block');
+                const sectionBlocks = targetSection.querySelectorAll('.content-block');
 
-            // 展开更多评论 - 优化手机端点击反馈
-            const expandBtn = document.querySelector('.expand-btn');
-            expandBtn.addEventListener('click', () => {
-                expandBtn.textContent = '已显示全部评论';
-                expandBtn.disabled = true;
-                expandBtn.style.color = 'var(--text-light)';
-                expandBtn.style.cursor = 'default';
-            });
-
-            // 弹窗功能 - 优化手机端触控和滚动
-            const modalOverlay = document.getElementById('modalOverlay');
-            const modalContent = document.getElementById('modalContent');
-            const modalClose = document.getElementById('modalClose');
-            
-            // 打开弹窗 - 优化手机端点击判断，防止误触
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('tooltip-box')) {
-                    const content = e.target.getAttribute('data-modal-content');
-                    modalContent.innerHTML = `<p>${content}</p>`;
-                    modalOverlay.classList.add('active');
-                    // 手机端：禁止根容器滚动
-                    document.getElementById('page-wrapper').style.overflow = 'hidden';
-                }
-            });
-
-            // 关闭弹窗函数 - 恢复滚动
-            function closeModal() {
-                modalOverlay.classList.remove('active');
-                document.getElementById('page-wrapper').style.overflow = 'auto';
-                modalContent.innerHTML = '';
-            }
-
-            // 弹窗关闭：按钮、遮罩、ESC键、手机端点击空白处
-            modalClose.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === modalOverlay) closeModal();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
-            });
-
-            // 底部按钮跳转 - 优化手机端点击反馈
-            document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
-                }, 150);
-            });
-
-            // 处理屏幕旋转/尺寸变化，确保旋转效果稳定 - 优化手机端适配精度
-            function handleOrientationChange() {
-                const wrapper = document.getElementById('page-wrapper');
-                const modal = document.querySelector('.modal-overlay');
-                const isMobile = window.innerWidth <= 576;
-                if (isMobile) {
-                    // 精准计算旋转后的宽高，适配不同手机屏幕
-                    const vh = window.innerHeight;
-                    const vw = window.innerWidth;
-                    wrapper.style.width = `${vh}px`;
-                    wrapper.style.height = `${vw}px`;
-                    modal.style.width = `${vh}px`;
-                    modal.style.height = `${vw}px`;
-                } else {
-                    wrapper.style.width = '100vw';
-                    wrapper.style.height = '100vh';
-                    wrapper.style.transform = 'none';
-                    modal.style.transform = 'none';
-                    modal.style.width = '100vw';
-                    modal.style.height = '100vh';
-                }
-            }
-
-            // 监听屏幕变化，优化防抖
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(handleOrientationChange, 100);
-            });
-            window.addEventListener('orientationchange', handleOrientationChange);
-            handleOrientationChange(); // 初始化执行一次
-
-            // 图片加载失败兜底 - 优化手机端图片体验
-            document.querySelectorAll('img').forEach(img => {
-                img.addEventListener('error', function() {
-                    this.src = `https://picsum.photos/seed/${this.alt}/32/32`;
-                    this.classList.add('loaded');
+                // 7. 只切换当前section内的内容块显示状态
+                sectionBlocks.forEach(block => {
+                    if (block.id === targetBlockId) {
+                        block.classList.add('active');
+                    } else {
+                        block.classList.remove('active');
+                    }
                 });
             });
         });
+
+        // 复制框架函数
+        function copyFrame() {
+            const frameText = document.getElementById('frameText');
+            frameText.select();
+            document.execCommand('copy');
+
+            // 显示复制成功提示
+            const copyToast = document.getElementById('copyToast');
+            copyToast.classList.add('show');
+            setTimeout(() => {
+                copyToast.classList.remove('show');
+            }, 2000);
+        }
+
+        // ========== 九宫格游戏逻辑 ==========
+        // 定义三组图片（数字对应九宫格的位置，从1开始）
+        const correctGroups = [
+            [1, 3, 7, 8],   // 第一组
+            [2, 5, 6],      // 第二组
+            [4, 9]          // 第三组
+        ];
+
+        // 定义自定义图片映射（key是图片位置1-9，value是图片URL）
+        const customImages = {
+            1: 'https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/4ce8356bcad343f3acfe0e07d9c1996c.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=2026012104394990B73B48376B6026F5DF&rrcfp=8a172a1a&x-expires=1769546389&x-signature=EOlT8q9UaszkbaVP5CUNylfBsrY%3D',
+            2: 'https://p26-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/c7e1d5b933574a2b8f54b023ac004c2a.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=2026012104454506D59E97744FE525DE54&rrcfp=8a172a1a&x-expires=1769546745&x-signature=cJnZFVO5eFpwIAzYlu8ykiWKgX0%3D',
+            3: 'https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/f48c577b485c41e5a95e6784b6ca8b24.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260121044057AF577B9C65D016263FBB&rrcfp=8a172a1a&x-expires=1769546457&x-signature=FkAjxYwkAtU94Wx3r80cp0UNIzU%3D',
+            4: 'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/ed64fa36be194fcc8cd82fd5d55a93ad.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=202601210446200D151879E7E4E8167B09&rrcfp=8a172a1a&x-expires=1769546780&x-signature=wmRW04hyu6YfJ%2FuFcx85UczryW4%3D',
+            5: 'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/4c8f5afbc401490ab5f8f66271e452ae.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=2026012104454506D59E97744FE525DE54&rrcfp=8a172a1a&x-expires=1769546745&x-signature=7W%2FfZlngFfOLi62WPbaiFG1CDU0%3D',
+            6:'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/19daea4835bd47b6995d95c22bd6879e.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=2026012104454506D59E97744FE525DE54&rrcfp=8a172a1a&x-expires=1769546745&x-signature=f3FTLrEgFuu9vU1uZpIE6Vm7H0w%3D',
+            7: 'https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fa0d9b05b562484b9c7a93c4131aad7b.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260121044439B1BDB876242F11260F1F&rrcfp=8a172a1a&x-expires=1769546679&x-signature=IZGdke%2F44J0ne5NxUYlE9Hk5c9g%3D',
+            8: 'https://p11-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/8889904b3092435e96e5d8eaeb566fb3.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260121044439B1BDB876242F11260F1F&rrcfp=8a172a1a&x-expires=1769546679&x-signature=E3Ya%2BCPWLugS9zMf93JgFlu%2F%2Fzk%3D',
+            9: 'https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/472b8ab443414c85a11be421e580d0ac.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=202601210446200D151879E7E4E8167B09&rrcfp=8a172a1a&x-expires=1769546780&x-signature=4E5gnB27UFP5DeLHTKxmomeKTVs%3D'
+        };
+
+        // 重构状态管理：为每组维护独立的已点击项和完成状态
+        let groupStates = [
+            { clicked: new Set(), completed: false }, // 第一组状态
+            { clicked: new Set(), completed: false }, // 第二组状态
+            { clicked: new Set(), completed: false }  // 第三组状态
+        ];
+        // 新增：记录当前用户正在操作的目标组（-1表示未开始）
+        let currentTargetGroup = -1;
+        // 记录已消失的图片ID
+        let hiddenImages = new Set();
+        // 获取页面元素
+        const gridContainer = document.getElementById('gridContainer');
+        const hint = document.getElementById('hint');
+        const resultText = document.getElementById('resultText');
+
+        // 初始化九宫格
+        function initGrid() {
+            // 清空容器（保留result-text）
+            const resultTextEl = gridContainer.querySelector('.result-text');
+            gridContainer.innerHTML = '';
+            gridContainer.appendChild(resultTextEl);
+
+            // 生成9个图片格子
+            for (let i = 1; i <= 9; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.dataset.id = i; // 给每个格子添加唯一标识
+
+                // 创建图片元素
+                const img = document.createElement('img');
+                // 使用自定义图片（已覆盖所有位置）
+                img.src = customImages[i];
+                img.alt = `图片${i}`;
+
+                gridItem.appendChild(img);
+                // 添加点击事件
+                gridItem.addEventListener('click', handleItemClick);
+                gridContainer.appendChild(gridItem);
+            }
+        }
+
+        // 批量隐藏指定组的所有图片
+        function hideGroupImages(groupIndex) {
+            const group = correctGroups[groupIndex];
+            group.forEach(id => {
+                const item = document.querySelector(`.grid-item[data-id="${id}"]`);
+                if (item) {
+                    item.classList.remove('correct-click', 'wrong-click');
+                    item.classList.add('hidden');
+                    hiddenImages.add(id);
+                }
+            });
+            // 标记该组已完成
+            groupStates[groupIndex].completed = true;
+            // 重置当前目标组（允许用户开始下一组）
+            currentTargetGroup = -1;
+        }
+
+        // 重置所有未完成组的图片状态（错误时调用）
+        function resetUnfinishedImages() {
+            // 遍历所有图片，只恢复未被永久隐藏的图片
+            for (let i = 1; i <= 9; i++) {
+                if (!hiddenImages.has(i)) {
+                    const item = document.querySelector(`.grid-item[data-id="${i}"]`);
+                    if (item) {
+                        item.classList.remove('correct-click', 'wrong-click');
+                    }
+                }
+            }
+            // 清空所有未完成组的已点击记录
+            groupStates.forEach((state, index) => {
+                if (!state.completed) {
+                    state.clicked.clear();
+                }
+            });
+            // 重置当前目标组
+            currentTargetGroup = -1;
+        }
+
+        // 查找点击的ID属于哪个组（返回组索引，-1表示不属于任何组）
+        function findGroupByItemId(itemId) {
+            for (let i = 0; i < correctGroups.length; i++) {
+                if (correctGroups[i].includes(itemId)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        // 处理图片点击事件
+        function handleItemClick(e) {
+            // 获取点击的图片ID（转为数字）
+            const clickedId = parseInt(e.currentTarget.dataset.id);
+            const clickedItem = e.currentTarget;
+
+            // 如果图片已经消失/所属组已完成，不处理
+            if (hiddenImages.has(clickedId)) {
+                return;
+            }
+
+            // 查找点击的图片属于哪个组
+            const groupIndex = findGroupByItemId(clickedId);
+
+            // 检查是否点击了有效组的图片
+            if (groupIndex !== -1 && !groupStates[groupIndex].completed) {
+                // 新增逻辑：检测跨组点击
+                if (currentTargetGroup === -1) {
+                    // 首次点击，设置当前目标组
+                    currentTargetGroup = groupIndex;
+                } else if (currentTargetGroup !== groupIndex) {
+                    // 跨组点击，判定为错误
+                    clickedItem.classList.add('wrong-click');
+                    hint.textContent = '选择错误';
+
+                    // 延迟重置，让用户看到错误动画
+                    setTimeout(() => {
+                        resetUnfinishedImages();
+                    }, 300);
+                    return; // 终止后续逻辑
+                }
+
+                const currentGroup = correctGroups[groupIndex];
+                const currentGroupState = groupStates[groupIndex];
+
+                // 正确：添加反馈样式并保留
+                clickedItem.classList.add('correct-click');
+                // 记录已点击的同组图片
+                currentGroupState.clicked.add(clickedId);
+
+                // 清空错误提示
+                hint.textContent = '';
+
+                // 检查当前组是否全部点击完成
+                if (currentGroupState.clicked.size === currentGroup.length) {
+                    // 延迟隐藏，让用户看到反馈效果
+                    setTimeout(() => {
+                        // 隐藏当前组所有图片
+                        hideGroupImages(groupIndex);
+
+                        // 检查是否所有图片都消失了
+                        checkAllHidden();
+                    }, 300);
+                }
+            } else {
+                // 错误：点击了不属于任何组/已完成组的图片
+                clickedItem.classList.add('wrong-click');
+                hint.textContent = '选择错误';
+
+                // 延迟重置，让用户看到错误动画
+                setTimeout(() => {
+                    // 重置状态
+                    resetUnfinishedImages();
+                }, 300);
+            }
+        }
+
+        // 检查是否所有图片都消失
+        function checkAllHidden() {
+           // 检查是否所有组都已完成
+            const allCompleted = groupStates.every(state => state.completed);
+
+            if (allCompleted) {
+                // 显示结果文本：添加show类触发透明度动画
+                resultText.classList.add('show');
+            }
+        }
+
+        // 初始化游戏
+        initGrid();
     </script>
 </body>
 </html>
