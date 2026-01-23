@@ -2,19 +2,37 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://picsum.photos https://p3-flow-imagex-download-sign.byteimg.com data:; font-src 'self' https://cdn.bootcdn.net; connect-src 'self'; frame-src 'self' https://999isbest.github.io;">
-    <title>得知自己是人类，哭了整整一个下午…… - 鸣屿论坛</title>
+    <!-- 修复：完整移动端视口标签，锁定横屏、适配刘海屏、禁止缩放 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- 修复：强制手机横屏显示（比transform旋转更原生） -->
+    <meta name="screen-orientation" content="landscape">
+    <meta name="x5-orientation" content="landscape">
+    <meta name="msapplication-tap-highlight" content="no">
+    <title>鸣屿论坛 - 手机端正常显示版</title>
     <style>
-        /* 全局样式重置 */
+        /* 全局重置：删除touch-action: none，恢复原生触摸事件 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: "Microsoft Yahei", "PingFang SC", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            font-size: 10px;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            padding-top: constant(safe-area-inset-top);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* 核心配色：蓝紫渐变 */
+        /* 配色变量 */
         :root {
             --primary-gradient: linear-gradient(135deg, #4a6cf7 0%, #8b5cf6 100%);
             --primary-blue: #4a6cf7;
@@ -22,8 +40,6 @@
             --text-main: #333;
             --text-secondary: #666;
             --text-light: #999;
-            --text-link: #4a6cf7;
-            --bg-main: #f8f9fa;
             --bg-card: #fff;
             --border-color: #e5e7eb;
             --hover-color: #f0f2f5;
@@ -32,133 +48,112 @@
             --tooltip-bg: #e0f7ff;
             --tooltip-border: #b3e5fc;
             --tooltip-text: #01579b;
+            --gap-base: 1.5rem;
         }
 
-        /* 基础容器设置 - 用于旋转 */
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow: hidden;
-            touch-action: none;
-        }
-
+        /* 修复：抛弃transform旋转，用原生flex做整体布局，适配手机横屏 */
         .page-container {
-            min-height: 100vh;
-            width: 100%;
-            transition: all 0.3s ease;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-top: 70px;
-            box-sizing: border-box;
+            overflow: hidden;
+            padding-top: 6rem; /* 给导航栏留空间，替代固定定位嵌套 */
         }
 
-        /* 1. 固定导航区 */
+        /* 修复：导航栏改用sticky定位，替代fixed，兼容移动端滚动/视口 */
         .navbar {
-            position: fixed;
+            position: sticky;
             top: 0;
             left: 0;
             right: 0;
-            height: 70px;
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: 6rem;
+            background-color: var(--bg-card);
+            box-shadow: 0 0.2rem 1rem rgba(0,0,0,0.05);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 1.5rem;
             z-index: 999;
+            width: 100vw;
         }
-
         .logo {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.8rem;
         }
-
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 3.2rem;
+            height: 3.2rem;
             background: var(--primary-gradient);
-            border-radius: 8px;
+            border-radius: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 1.6rem;
         }
-
         .logo-text {
-            font-size: 20px;
+            font-size: 1.4rem;
             font-weight: bold;
             color: #fff;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .search-container {
             flex: 1;
-            max-width: 600px;
+            max-width: 30rem;
             margin: 0 auto;
             position: relative;
         }
-
         .search-input {
             width: 100%;
-            height: 40px;
+            height: 3.2rem;
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 0 20px;
-            font-size: 14px;
+            border-radius: 2rem;
+            padding: 0 1.2rem;
+            font-size: 1.2rem;
             outline: none;
-            transition: all 0.3s;
         }
-
         .search-input:focus {
             border-color: var(--primary-blue);
-            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.1);
+            box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.1);
         }
-
         .search-suggestions {
             position: absolute;
-            top: 45px;
+            top: 4.5rem;
             left: 0;
             right: 0;
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 10px 0;
+            border-radius: 0.8rem;
+            box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.1);
+            padding: 1rem 0;
             display: none;
             z-index: 998;
+            font-size: 1.2rem;
         }
-
         .search-suggestions.show {
             display: block;
         }
-
         .suggestion-item {
-            padding: 10px 20px;
-            font-size: 14px;
+            padding: 1rem 2rem;
             cursor: pointer;
         }
-
         .suggestion-item:hover {
             background-color: var(--hover-color);
         }
-
-        /* 顶部右上角：消息+个人中心图标 */
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 2rem;
         }
         .nav-icon {
-            font-size: 20px;
+            font-size: 1.6rem;
             color: var(--text-secondary);
             cursor: pointer;
-            width: 24px;
-            height: 24px;
+            width: 2.4rem;
+            height: 2.4rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -167,35 +162,44 @@
             color: var(--primary-blue);
         }
 
-        /* 2. 核心布局：栅格化双栏 - 电脑端原样式 */
+        /* 核心：1:1等比双栏，适配手机原生横屏，删除旋转后的尺寸错误计算 */
         .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            padding: 0 20px;
             flex: 1;
-        }
-
-        /* 左侧核心内容区 - 帖子 */
-        .content-main {
-            background: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            width: calc(100vw - 3rem);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap-base);
+            padding: 0 1rem;
             overflow: hidden;
-            height: fit-content;
         }
 
-        /* 图片展示区 */
+        /* 左侧帖子区：修复弹性滚动，确保手机触摸滑动正常 */
+        .content-main {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-card);
+            border-radius: 1.2rem;
+            box-shadow: 0 0.2rem 1rem rgba(0,0,0,0.03);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* 隐藏滚动条，更美观 */
+        }
+        .content-main::-webkit-scrollbar {
+            display: none;
+        }
+        /* 图片区：保留16:9等比，修复旋转后的拉伸问题 */
         .image-carousel {
             position: relative;
             width: 100%;
-            height: 500px;
+            padding-top: 56.25%;
+            height: 0;
             overflow: hidden;
         }
-
         .carousel-item {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
@@ -203,107 +207,101 @@
             justify-content: center;
             background-color: #f0f0f0;
         }
-
         .carousel-img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             background: #f8f8f8 url('https://picsum.photos/800/500?grayscale') no-repeat center;
         }
-
-        /* 帖子内容区 */
         .post-content {
-            padding: 20px;
+            padding: var(--gap-base);
         }
-
         .post-title {
-            font-size: 20px;
+            font-size: 1.6rem;
             font-weight: bold;
-            margin-bottom: 15px;
-            line-height: 1.4;
+            margin-bottom: 1rem;
+            line-height: 1.5;
         }
-
         .post-body {
-            font-size: 16px;
-            line-height: 1.8;
+            font-size: 1.3rem;
+            line-height: 1.6;
             color: var(--text-main);
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
-
         .post-body p {
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
         }
-
+        .post-body strong {
+            font-size: 1.4rem;
+        }
         .post-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
         }
-
         .tag {
-            padding: 5px 12px;
+            padding: 0.3rem 0.8rem;
             background-color: var(--hover-color);
-            border-radius: 16px;
-            font-size: 14px;
+            border-radius: 1.6rem;
+            font-size: 1.2rem;
             color: var(--primary-purple);
             text-decoration: none;
         }
-
         .tag:hover {
             background: var(--primary-gradient);
             color: #fff;
         }
 
-        /* 右侧互动区：评论区 */
+        /* 右侧评论区：同步修复滚动和触摸事件，与帖子区等比 */
         .content-side {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            width: 100%;
+            height: 100%;
         }
-
         .comment-section {
+            width: 100%;
+            height: 100%;
             background: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            padding: 20px;
-            height: fit-content;
-            max-height: calc(100vh - 110px);
+            border-radius: 1.2rem;
+            box-shadow: 0 0.2rem 1rem rgba(0,0,0,0.03);
+            padding: calc(var(--gap-base) - 0.3rem);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
-
-        /* 评论输入框及功能栏 */
+        .comment-section::-webkit-scrollbar {
+            display: none;
+        }
         .comment-input-wrapper {
-            margin-bottom: 20px;
+            margin-bottom: 1.2rem;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 0.8rem;
             overflow: hidden;
         }
         .comment-func-bar {
             display: flex;
             align-items: center;
-            padding: 8px 15px;
+            padding: 0.6rem 1rem;
             border-bottom: 1px solid var(--border-color);
-            gap: 20px;
+            gap: 1.5rem;
         }
         .func-item {
             display: flex;
             align-items: center;
-            font-size: 14px;
+            font-size: 1.4rem;
             color: var(--text-secondary);
             cursor: pointer;
-            width: 20px;
+            width: 2rem;
         }
         .func-item:hover {
             color: var(--primary-blue);
         }
         .comment-input {
             width: 100%;
-            height: 60px;
+            height: 5rem;
             border: none;
-            padding: 10px 15px;
-            font-size: 14px;
+            padding: 0.8rem 1rem;
+            font-size: 1.3rem;
             outline: none;
             resize: none;
             background: transparent;
@@ -312,136 +310,127 @@
             color: var(--text-light);
         }
         .comment-submit {
-            margin-top: 8px;
+            margin-top: 0.8rem;
             text-align: right;
         }
         .submit-btn {
-            padding: 6px 16px;
+            padding: 0.4rem 1.2rem;
             background: var(--primary-gradient);
             color: #fff;
             border: none;
-            border-radius: 20px;
-            font-size: 14px;
+            border-radius: 2rem;
+            font-size: 1.2rem;
             cursor: pointer;
         }
         .submit-btn:disabled {
             background: var(--border-color);
             cursor: not-allowed;
         }
-
-        /* 评论通用样式 */
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .comment-item {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
         .avatar {
-            width: 32px;
-            height: 32px;
+            width: 2.8rem;
+            height: 2.8rem;
             border-radius: 50%;
             object-fit: cover;
             background: var(--hover-color);
             flex-shrink: 0;
         }
-        .comment-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
         .comment-author-box {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 0.5rem;
         }
         .comment-author {
-            font-size: 14px;
+            font-size: 1.3rem;
             font-weight: 500;
             color: var(--text-main);
         }
         .author-tag {
-            font-size: 10px;
+            font-size: 1rem;
             color: var(--author-tag-text);
             background: var(--author-tag-bg);
-            padding: 1px 4px;
-            border-radius: 3px;
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.3rem;
             line-height: 1;
         }
         .comment-time {
-            font-size: 12px;
+            font-size: 1.1rem;
             color: var(--text-light);
             margin-left: auto;
         }
-        .comment-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .comment-item {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-        }
-        .comment-item:last-child {
-            border-bottom: none;
-        }
         .comment-content {
-            font-size: 14px;
+            font-size: 1.2rem;
             line-height: 1.6;
-            margin-bottom: 10px;
-            padding-left: 40px;
+            margin-bottom: 0.6rem;
+            padding-left: 3.2rem;
         }
-        /* 回复区样式 */
+        .tooltip-box {
+            background-color: var(--tooltip-bg);
+            border: 1px solid var(--tooltip-border);
+            color: var(--tooltip-text);
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0 0.2rem;
+            user-select: none;
+        }
+        .tooltip-box:hover {
+            background-color: #b3e5fc;
+            transform: scale(1.02);
+        }
         .comment-replies {
-            margin-left: 40px;
-            margin-top: 10px;
+            margin-left: 3.2rem;
+            margin-top: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 0.8rem;
         }
         .reply-item {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
-            font-size: 13px;
+            gap: 0.8rem;
+            font-size: 1.1rem;
             line-height: 1.5;
         }
         .reply-content {
             background: var(--hover-color);
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.8rem;
             color: var(--text-secondary);
         }
         .reply-at {
-            color: var(--text-link);
+            color: var(--primary-blue);
             font-weight: 500;
         }
         .expand-btn {
             background: none;
             border: none;
             color: var(--primary-blue);
-            font-size: 13px;
+            font-size: 1.2rem;
             cursor: pointer;
-            margin-top: 5px;
-            padding-left: 40px;
+            margin-top: 0.3rem;
+            padding-left: 3.2rem;
         }
 
-        /* 浅蓝色背景文字框样式 */
-        .tooltip-box {
-            background-color: var(--tooltip-bg);
-            border: 1px solid var(--tooltip-border);
-            color: var(--tooltip-text);
-            padding: 2px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: inline-block;
-            margin: 0 2px;
-            transition: all 0.2s ease;
-            z-index: 100;
-            position: relative;
-            user-select: none;
-        }
-
-        .tooltip-box:hover {
-            background-color: #b3e5fc;
-            transform: scale(1.02);
-        }
-
-        /* 弹窗样式 */
+        /* 弹窗：修复旋转后的定位，适配手机横屏 */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -452,286 +441,110 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1002;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
         }
-
         .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
-
         .modal-content {
             background-color: white;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0.8rem;
+            box-shadow: 0 0.4rem 2rem rgba(0, 0, 0, 0.15);
+            max-width: 80%;
             width: 90%;
-            font-size: 18px;
+            font-size: 1.5rem;
             line-height: 1.8;
-            transform: translateY(-20px);
+            transform: translateY(-2rem);
             transition: all 0.3s ease;
             position: relative;
             text-align: center;
         }
-
         .modal-overlay.active .modal-content {
             transform: translateY(0);
         }
-
         .modal-close {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 22px;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.8rem;
             color: #666;
             cursor: pointer;
             background: none;
             border: none;
-            padding: 5px;
+            padding: 0.5rem;
             z-index: 1001;
         }
-
         .modal-close:hover {
             color: #333;
         }
 
-        /* 网页底部深入调查按钮 */
+        /* 底部按钮：适配原生横屏，删除旋转后的间距错误 */
         .footer-investigate {
             width: 100%;
-            padding: 30px 20px;
-            background-color: var(--bg-main);
+            padding: 1.5rem 0;
+            background-color: #f8f9fa;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 1rem;
         }
         .footer-investigate-btn {
             background: var(--primary-gradient);
             color: #fff;
             border: none;
-            border-radius: 24px;
-            padding: 12px 32px;
-            font-size: 18px;
+            border-radius: 2.4rem;
+            padding: 0.6rem 1.8rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+            box-shadow: 0 0.4rem 1.2rem rgba(74, 108, 247, 0.2);
             user-select: none;
         }
         .footer-investigate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(74, 108, 247, 0.3);
+            transform: translateY(-0.3rem);
+            box-shadow: 0 0.6rem 1.6rem rgba(74, 108, 247, 0.3);
         }
 
-        /* ========== 移动端旋转90度 + 居中 + 左帖子右评论双栏核心 ========== */
-        @media screen and (max-width: 768px), screen and (max-device-width: 768px) {
-            /* 核心：旋转90度 + 绝对居中，适配所有手机尺寸 */
+        /* 小屏手机极致适配：保留等比缩放，修复旋转后的基准错误 */
+        @media screen and (max-width: 768px) and (orientation: landscape) {
+            :root {
+                --gap-base: 1.2rem;
+            }
+            html {
+                font-size: 9px;
+            }
+            .container {
+                gap: 1rem;
+                width: calc(100vw - 2rem);
+            }
+            .comment-section {
+                padding: 1rem;
+            }
+        }
+        /* 兼容竖屏手机：自动适配为单栏，避免横屏强制导致的显示问题 */
+        @media screen and (orientation: portrait) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
             .page-container {
-                transform: rotate(90deg) translate(-50%, -50%);
-                transform-origin: center center;
-                width: 100vh;
-                height: 100vw;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                padding-top: 0;
-                margin: 0;
-                overflow: hidden;
+                height: auto;
+                min-height: 100vh;
             }
-
-            /* 导航栏适配旋转后的居中布局 */
-            .navbar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                width: 100vh;
-                height: 60px;
-                padding: 0 15px;
-                z-index: 999;
-            }
-
-            /* 核心：手机端保留双栏布局 左帖子(2fr) + 右评论(1fr)，适配旋转后屏幕宽度 */
-            .container {
-                max-width: none;
-                width: calc(100vw - 30px); /* 适配旋转后屏幕宽度，留少量边距 */
-                height: calc(100vw - 80px); /* 适配旋转后屏幕高度，避开导航栏 */
-                margin: 70px auto 10px;
-                grid-template-columns: 2fr 1fr; /* 关键：保留双栏，和电脑端一致 */
-                gap: 15px; /* 缩小栏间距，适配手机 */
-                padding: 0 10px;
-                flex: none; /* 取消弹性，固定尺寸 */
-            }
-
-            /* 左侧帖子区 - 适配手机双栏 */
-            .content-main {
-                width: 100%;
-                height: 100%;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            /* 帖子图片区 - 等比缩小，适配手机双栏 */
-            .image-carousel {
-                height: 220px;
-            }
-
-            /* 帖子文字 - 精细缩容，适配手机双栏 */
-            .post-title {
-                font-size: 16px;
-                margin-bottom: 10px;
-            }
-            .post-body {
-                font-size: 13px;
-                line-height: 1.5;
-                margin-bottom: 15px;
-            }
-            .post-body p {
-                margin-bottom: 10px;
-            }
-            .tag {
-                padding: 3px 8px;
-                font-size: 12px;
-            }
-
-            /* 右侧评论区 - 适配手机双栏，固定高度可滚动 */
-            .content-side {
-                width: 100%;
-                height: 100%;
-            }
-            .comment-section {
-                width: 100%;
-                height: 100%;
-                max-height: 100%;
-                padding: 12px;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            /* 评论区元素 - 缩容适配 */
-            .comment-input-wrapper {
-                margin-bottom: 12px;
-            }
-            .comment-func-bar {
-                padding: 6px 10px;
-                gap: 15px;
-            }
-            .comment-input {
-                height: 50px;
-                font-size: 13px;
-                padding: 8px 10px;
-            }
-            .submit-btn {
-                padding: 4px 12px;
-                font-size: 12px;
-            }
-
-            /* 评论内容 - 缩容适配手机双栏 */
-            .avatar {
-                width: 28px;
-                height: 28px;
-            }
-            .comment-author {
-                font-size: 13px;
-            }
-            .comment-time {
-                font-size: 11px;
-            }
-            .comment-content {
-                font-size: 12px;
-                padding-left: 32px;
-                margin-bottom: 6px;
-            }
-            .comment-replies {
-                margin-left: 32px;
-                gap: 8px;
-            }
-            .reply-content {
-                font-size: 11px;
-                padding: 4px 8px;
-            }
-            .expand-btn {
-                font-size: 12px;
-                padding-left: 32px;
-                margin-top: 3px;
-            }
-
-            /* 弹窗适配旋转后的双栏布局 */
-            .modal-overlay {
-                z-index: 1002;
-            }
-            .modal-content {
-                padding: 12px 18px;
-                font-size: 15px;
-                max-width: 80%;
-            }
-            .modal-close {
-                font-size: 18px;
-                top: 10px;
-                right: 10px;
-            }
-
-            /* 导航栏元素缩容 */
-            .logo-icon {
-                width: 32px;
-                height: 32px;
-                font-size: 16px;
-            }
-            .logo-text {
-                font-size: 14px;
-            }
-            .nav-icon {
-                font-size: 16px;
-            }
-            .search-input {
-                height: 32px;
-                font-size: 12px;
-                padding: 0 12px;
-            }
-            .search-container {
-                max-width: 300px;
-            }
-
-            /* 底部按钮 - 适配旋转后双栏布局，缩容 */
-            .footer-investigate {
-                padding: 15px 0;
-                margin-top: 0;
-            }
-            .footer-investigate-btn {
-                padding: 6px 18px;
-                font-size: 13px;
-            }
-        }
-
-        /* 小屏手机(400px以下)极致适配 */
-        @media screen and (max-width: 400px), screen and (max-device-width: 400px) {
-            .image-carousel {
-                height: 180px;
-            }
-            .post-title {
-                font-size: 14px;
-            }
-            .post-body {
-                font-size: 12px;
-            }
-            .container {
-                gap: 10px;
-                width: calc(100vw - 20px);
-            }
-            .comment-section {
-                padding: 8px;
+            .content-main, .comment-section {
+                height: auto;
+                min-height: 40vh;
             }
         }
     </style>
-    <!-- 引入图标库 -->
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="page-container">
-        <!-- 1. 固定导航区 -->
         <nav class="navbar">
             <div class="logo">
                 <div class="logo-icon">鸣</div>
@@ -748,16 +561,11 @@
                 </div>
             </div>
             <div class="nav-right">
-                <div class="nav-icon" id="msgIcon">
-                    <i class="far fa-bell"></i>
-                </div>
-                <div class="nav-icon" id="userIcon">
-                    <i class="far fa-user"></i>
-                </div>
+                <div class="nav-icon" id="msgIcon"><i class="far fa-bell"></i></div>
+                <div class="nav-icon" id="userIcon"><i class="far fa-user"></i></div>
             </div>
         </nav>
 
-        <!-- 2. 核心双栏布局：左帖子 + 右评论 -->
         <div class="container">
             <div class="content-main">
                 <div class="image-carousel">
@@ -800,15 +608,9 @@
                 <div class="comment-section">
                     <div class="comment-input-wrapper">
                         <div class="comment-func-bar">
-                            <div class="func-item" id="atFunc">
-                                <i class="fas fa-at"></i>
-                            </div>
-                            <div class="func-item" id="emojiFunc">
-                                <i class="far fa-smile"></i>
-                            </div>
-                            <div class="func-item" id="imgFunc">
-                                <i class="fas fa-image"></i>
-                            </div>
+                            <div class="func-item" id="atFunc"><i class="fas fa-at"></i></div>
+                            <div class="func-item" id="emojiFunc"><i class="far fa-smile"></i></div>
+                            <div class="func-item" id="imgFunc"><i class="fas fa-image"></i></div>
                         </div>
                         <textarea class="comment-input" placeholder="说点什么..."></textarea>
                     </div>
@@ -816,14 +618,11 @@
                         <button class="submit-btn" disabled>发布评论</button>
                     </div>
 
-                    <!-- 评论列表 -->
                     <div class="comment-list">
                         <div class="comment-item">
                             <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">每天都在讨饭</span>
-                                </div>
+                                <div class="comment-author-box"><span class="comment-author">每天都在讨饭</span></div>
                                 <span class="comment-time">2小时前</span>
                             </div>
                             <div class="comment-content">
@@ -832,44 +631,32 @@
                             <div class="comment-replies">
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/author/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*</div>
                                 </div>
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！</div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="comment-item">
                             <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment2/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">快乐星球居民</span>
-                                </div>
+                                <div class="comment-author-box"><span class="comment-author">快乐星球居民</span></div>
                                 <span class="comment-time">1小时前</span>
                             </div>
                             <div class="comment-content">快来合影参考文献！@宇宙无敌美少女</div>
                             <div class="comment-replies">
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment3/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！</div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="comment-item">
                             <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment4/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">学术卷王</span>
-                                </div>
+                                <div class="comment-author-box"><span class="comment-author">学术卷王</span></div>
                                 <span class="comment-time">1小时前</span>
                             </div>
                             <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！
@@ -878,56 +665,40 @@
                             <div class="comment-replies">
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment5/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！</div>
                                 </div>
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment6/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo</div>
                                 </div>
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment7/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha</div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="comment-item">
                             <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">吃瓜群众</span>
-                                </div>
+                                <div class="comment-author-box"><span class="comment-author">吃瓜群众</span></div>
                                 <span class="comment-time">50分钟前</span>
                             </div>
                             <div class="comment-content">这人……偶不，这鼠在说什么呢!</div>
                             <div class="comment-replies">
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇</div>
                                 </div>
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）</div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="comment-item">
                             <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">生物课代表</span>
-                                </div>
+                                <div class="comment-author-box"><span class="comment-author">生物课代表</span></div>
                                 <span class="comment-time">30分钟前</span>
                             </div>
                             <div class="comment-content">
@@ -936,24 +707,18 @@
                             <div class="comment-replies">
                                 <div class="reply-item">
                                     <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
-                                    <div class="reply-content">
-                                        <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》
-                                    </div>
+                                    <div class="reply-content"><span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》</div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="comment-item">
                             <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment10/32/32" alt="头像" class="avatar">
-                                <div class="comment-author-box">
-                                    <span class="comment-author">追瓜人</span>
-                                </div>
+                                <div class="comment-author-box"><span class="comment-author">追瓜人</span></div>
                                 <span class="comment-time">10分钟前</span>
                             </div>
                             <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
                         </div>
-
                         <button class="expand-btn">展开更多评论</button>
                     </div>
                 </div>
@@ -965,19 +730,16 @@
         </div>
     </div>
 
-    <!-- 弹窗容器 -->
     <div class="modal-overlay" id="modalOverlay">
         <button class="modal-close" id="modalClose">&times;</button>
         <div class="modal-content" id="modalContent"></div>
     </div>
 
     <script>
-        // 等待DOM加载完成
         document.addEventListener('DOMContentLoaded', function() {
-            // 搜索框下拉推荐
+            // 搜索框下拉
             const searchInput = document.getElementById('searchInput');
             const searchSuggestions = document.getElementById('searchSuggestions');
-
             searchInput.addEventListener('focus', () => searchSuggestions.classList.add('show'));
             searchInput.addEventListener('input', () => searchSuggestions.classList.add('show'));
             document.addEventListener('click', (e) => {
@@ -986,15 +748,14 @@
                 }
             });
 
-            // 评论输入框：输入内容激活发布按钮
+            // 评论输入激活
             const commentInput = document.querySelector('.comment-input');
             const submitBtn = document.querySelector('.submit-btn');
-
             commentInput.addEventListener('input', () => {
                 submitBtn.disabled = commentInput.value.trim() === '';
             });
 
-            // @功能：点击插入@符号
+            // @插入
             const atFunc = document.getElementById('atFunc');
             atFunc.addEventListener('click', () => {
                 commentInput.focus();
@@ -1004,11 +765,11 @@
                 commentInput.selectionStart = commentInput.selectionEnd = cursorPos + 1;
             });
 
-            // 表情/发图功能：点击聚焦
+            // 表情/图片聚焦
             document.getElementById('emojiFunc').addEventListener('click', () => commentInput.focus());
             document.getElementById('imgFunc').addEventListener('click', () => commentInput.focus());
 
-            // 展开更多评论
+            // 展开评论
             const expandBtn = document.querySelector('.expand-btn');
             expandBtn.addEventListener('click', () => {
                 expandBtn.textContent = '已显示全部评论';
@@ -1016,48 +777,28 @@
                 expandBtn.style.color = 'var(--text-light)';
             });
 
-            // 弹窗功能
+            // 弹窗
             const modalOverlay = document.getElementById('modalOverlay');
             const modalContent = document.getElementById('modalContent');
             const modalClose = document.getElementById('modalClose');
-            
-            // 打开弹窗
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('tooltip-box')) {
                     const content = e.target.getAttribute('data-modal-content');
                     modalContent.innerHTML = `<p>${content}</p>`;
                     modalOverlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
                 }
             });
-
-            // 关闭弹窗函数
             function closeModal() {
                 modalOverlay.classList.remove('active');
-                document.body.style.overflow = '';
                 modalContent.innerHTML = '';
             }
-
-            // 弹窗关闭：按钮、遮罩、ESC键
             modalClose.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === modalOverlay) closeModal();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
-            });
+            modalOverlay.addEventListener('click', (e) => e.target === modalOverlay && closeModal());
+            document.addEventListener('keydown', (e) => e.key === 'Escape' && modalOverlay.classList.contains('active') && closeModal());
 
-            // 底部按钮跳转
+            // 底部按钮
             document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
                 window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
-            });
-
-            // 监听窗口旋转/大小变化，重新适配居中双栏布局
-            window.addEventListener('resize', function() {
-                const pageContainer = document.querySelector('.page-container');
-                if (window.innerWidth <= 768) {
-                    pageContainer.style.transform = 'rotate(90deg) translate(-50%, -50%)';
-                }
             });
         });
     </script>
