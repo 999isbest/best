@@ -851,7 +851,7 @@
             // 搜索框即时下拉推荐
             const searchInput = document.getElementById('searchInput');
             const searchSuggestions = document.getElementById('searchSuggestions');
-            
+
             if (searchInput && searchSuggestions) {
                 searchInput.addEventListener('focus', () => searchSuggestions.classList.add('show'));
                 searchInput.addEventListener('input', () => searchSuggestions.classList.add('show'));
@@ -865,7 +865,7 @@
             // 图片轮播（单图隐藏按钮）
             const prevBtn = document.querySelector('.prev-btn');
             const nextBtn = document.querySelector('.next-btn');
-            
+
             if (prevBtn && nextBtn) {
                 prevBtn.style.display = 'none';
                 nextBtn.style.display = 'none';
@@ -874,7 +874,7 @@
             // 评论输入框功能：输入内容激活发布按钮
             const commentInput = document.querySelector('.comment-input');
             const submitBtn = document.querySelector('.submit-btn');
-            
+
             if (commentInput && submitBtn) {
                 commentInput.addEventListener('input', () => {
                     submitBtn.disabled = commentInput.value.trim() === '';
@@ -898,16 +898,16 @@
             }
 
             // 表情/发图功能：仅点击聚焦
-            如果 (emojiFunc && commentInput) {
+            if (emojiFunc && commentInput) {
                 emojiFunc.addEventListener('click', () => commentInput.focus());
             }
-            如果 (imgFunc && commentInput) {
+            if (imgFunc && commentInput) {
                 imgFunc.addEventListener('click', () => commentInput.focus());
             }
 
             // 展开更多评论
             const expandBtn = document.querySelector('.expand-btn');
-            
+
             if (expandBtn) {
                 expandBtn.addEventListener('click', () => {
                     expandBtn.textContent = '已显示全部评论';
@@ -919,7 +919,7 @@
             // 顶部消息/个人中心图标：仅保留点击交互
             const msgIcon = document.getElementById('msgIcon');
             const userIcon = document.getElementById('userIcon');
-            
+
             if (msgIcon) {
                 msgIcon.addEventListener('click', () => msgIcon.focus());
             }
@@ -939,7 +939,7 @@
             // 点击文字框打开弹窗
             tooltipBoxes.forEach(box => {
                 box.addEventListener('click', () => {
-                    控制台.日志('点击了tooltip框，内容:', box.getAttribute('data-modal-content'));
+                    console.log('点击了tooltip框，内容:', box.getAttribute('data-modal-content'));
                     const content = box.getAttribute('data-modal-content');
                     modalContent.innerHTML = `<p>${content}</p>`; // 仅渲染文本，无按钮
                     modalOverlay.classList.add('show');
@@ -961,7 +961,7 @@
             if (modalOverlay) {
                 modalOverlay.addEventListener('click', (e) => e.target === modalOverlay && closeModal());
             }
-            document.addEventListener('keydown',e)=>key==='Escape'&&modalOverlay.classList.contains('show')closeModal;
+            document.addEventListener('keydown',e)=>密钥==='Escape'&&modalOverlay.classList.contains('show')closeModal;
 
             // 新增：底部深入调查按钮点击事件（修改为跳转指定链接）
             const footerInvestigateBtn = document.getElementById('footerInvestigateBtn');
