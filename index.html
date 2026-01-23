@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://picsum.photos https://p3-flow-imagex-download-sign.byteimg.com data:; font-src 'self' https://cdn.bootcdn.net; connect-src 'self'; frame-src 'self' https://999isbest.github.io;">
     <title>得知自己是人类，哭了整整一个下午…… - 鸣屿论坛</title>
     <style>
@@ -41,6 +41,69 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            /* 基础过渡效果，让旋转更平滑 */
+            transition: all 0.3s ease;
+        }
+
+        /* ========== 新增：手机旋转核心样式 ========== */
+        @media screen and (max-width: 767px) and (orientation: portrait) {
+            body {
+                /* 顺时针旋转90度 */
+                transform: rotate(90deg);
+                transform-origin: center center;
+                /* 旋转后交换宽高，填充整个屏幕 */
+                width: 100vh;
+                height: 100vw;
+                /* 固定定位，确保居中 */
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                margin: auto;
+                /* 修复旋转后的滚动问题 */
+                overflow-x: hidden;
+                overflow-y: auto;
+                /* 重置padding，避免错位 */
+                padding-top: 0;
+            }
+            
+            /* 调整容器，确保内容居中适配 */
+            .container {
+                max-width: 100%;
+                width: calc(100vh - 40px);
+                margin: 70px auto 20px;
+                padding: 0 10px;
+            }
+            
+            /* 调整导航栏定位 */
+            .navbar {
+                position: fixed;
+                top: calc(50vw - 35px);
+                left: 0;
+                right: 0;
+                z-index: 999;
+                width: 100vh;
+            }
+            
+            /* 调整图片轮播高度 */
+            .image-carousel {
+                height: 300px !important;
+            }
+            
+            /* 调整底部按钮区域 */
+            .footer-investigate {
+                width: 100vh;
+                padding: 20px 10px;
+            }
+            
+            /* 调整弹窗适配旋转后的屏幕 */
+            .modal-overlay {
+                transform: rotate(-90deg);
+                transform-origin: center center;
+                width: 100vh;
+                height: 100vw;
+            }
         }
 
         /* 1. 固定导航区 */
@@ -590,8 +653,8 @@
         <div class="content-main">
             <div class="image-carousel">
                 <div class="carousel-item">
-                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fd62076a5b6a414fb3d9b4460ecdc7b4.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260117214814412F45B474C6832D43D2&rrcfp=8a172a1a&x-expires=1769262494&x-signature=UGOn%2FgRtPqY5M96igQR6cqHYC9s%3D" 
-                         alt="老鼠基因检测插画" 
+                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fd62076a5b6a414fb3d9b4460ecdc7b4.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260117214814412F45B474C6832D43D2&rrcfp=8a172a1a&x-expires=1769262494&x-signature=UGOn%2FgRtPqY5M96igQR6cqHYC9s%3D"
+                         alt="老鼠基因检测插画"
                          class="carousel-img"
                          onerror="this.src='https://picsum.photos/800/500?grayscale';">
                 </div>
@@ -847,7 +910,7 @@
             const modalOverlay = document.getElementById('modalOverlay');
             const modalContent = document.getElementById('modalContent');
             const modalClose = document.getElementById('modalClose');
-            
+
             // 打开弹窗
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('tooltip-box')) {
@@ -874,11 +937,16 @@
                 if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
             });
 
-          // 底部按钮跳转（当前页面跳转）
-document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
-    // 直接修改当前页面的URL，实现本页面跳转
-    window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
-});
+            // 底部按钮跳转
+            document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
+                const a = document.createElement('a');
+                a.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
         });
     </script>
 </body>
