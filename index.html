@@ -34,6 +34,18 @@
             --tooltip-text: #01579b;
         }
 
+        /* 新增：根容器，用于整体旋转 */
+        #page-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
@@ -593,242 +605,266 @@
                 padding-bottom: 8px;
             }
         }
+
+        /* 新增：手机端整体旋转90度样式 */
+        @media (max-width: 576px) {
+            #page-wrapper {
+                width: 100vh;
+                height: 100vw;
+                transform: rotate(90deg) translateY(-100%);
+                transform-origin: top left;
+                -webkit-transform: rotate(90deg) translateY(-100%);
+                -webkit-transform-origin: top left;
+            }
+            /* 弹窗同步旋转，保持正常显示 */
+            .modal-overlay {
+                transform: rotate(90deg) translateY(-100%);
+                transform-origin: top left;
+                -webkit-transform: rotate(90deg) translateY(-100%);
+                -webkit-transform-origin: top left;
+                width: 100vh;
+                height: 100vw;
+            }
+        }
     </style>
     <!-- 引入图标库 -->
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 1. 固定导航区 -->
-    <nav class="navbar">
-        <div class="logo">
-            <div class="logo-icon">鸣</div>
-            <div class="logo-text">鸣屿论坛</div>
-        </div>
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="请输入关键词或话题" id="searchInput">
-            <div class="search-suggestions" id="searchSuggestions">
-                <div class="suggestion-item">#参考文献 梗</div>
-                <div class="suggestion-item">得知自己是人类，哭了整整一个下午……</div>
-                <div class="suggestion-item">#精神状态 搞笑</div>
-                <div class="suggestion-item">基因检测 有趣结果</div>
-                <div class="suggestion-item">#老鼠 自嘲 文案</div>
+    <!-- 新增：根容器包裹所有内容 -->
+    <div id="page-wrapper">
+        <!-- 1. 固定导航区 -->
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon">鸣</div>
+                <div class="logo-text">鸣屿论坛</div>
             </div>
-        </div>
-        <div class="nav-right">
-            <div class="nav-icon" id="msgIcon">
-                <i class="far fa-bell"></i>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="请输入关键词或话题" id="searchInput">
+                <div class="search-suggestions" id="searchSuggestions">
+                    <div class="suggestion-item">#参考文献 梗</div>
+                    <div class="suggestion-item">得知自己是人类，哭了整整一个下午……</div>
+                    <div class="suggestion-item">#精神状态 搞笑</div>
+                    <div class="suggestion-item">基因检测 有趣结果</div>
+                    <div class="suggestion-item">#老鼠 自嘲 文案</div>
+                </div>
             </div>
-            <div class="nav-icon" id="userIcon">
-                <i class="far fa-user"></i>
+            <div class="nav-right">
+                <div class="nav-icon" id="msgIcon">
+                    <i class="far fa-bell"></i>
+                </div>
+                <div class="nav-icon" id="userIcon">
+                    <i class="far fa-user"></i>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- 2. 核心内容区 -->
-    <div class="container">
-        <div class="content-main">
-            <div class="image-carousel">
-                <div class="carousel-item">
-                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fd62076a5b6a414fb3d9b4460ecdc7b4.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260117214814412F45B474C6832D43D2&rrcfp=8a172a1a&x-expires=1769262494&x-signature=UGOn%2FgRtPqY5M96igQR6cqHYC9s%3D" 
-                         alt="老鼠基因检测插画" 
-                         class="carousel-img"
-                         onerror="this.src='https://picsum.photos/800/500?grayscale';">
-                </div>
-            </div>
-            <div class="post-content">
-                <h1 class="post-title">
-                    <span class="tooltip-box" data-modal-content="发帖者无厘头的趣味分享">得知自己是人类，哭了整整一个下午……</span>
-                </h1>
-                <div class="post-body">
-                    <p>从昨天下午到现在，我真的…… 哭到抽搐，嗓子像被砂纸刮过，眼泪把整张床单都打湿了，眼角肿得像刚做完拉皮手术一样。</p>
-                    <p>两周前，我只是出于自嘲，给自己做了一个 DNA 检测。我一直以为，我可能是某种老鼠、臭虫，或某种社会边角料。毕竟，从小到大我就不觉得自己 “属于人类” 这个群体。没有人在意我，他们都不喜欢我，见到我都唯恐避之不及。</p>
-                    <p>昨天收到检测报告，本来没怎么在意，只是例行点开看看。</p>
-                    <p>看到第一行，我瞬间崩溃了：<br><strong>Human: 100%</strong></p>
-                    <p>我居然是人类！我以为我只是一只从下水道里意外爬进大学课堂的臭老鼠，是一只让所有人都欲除之的悲惨生物。</p>
-                    <p>但这条结果，像一道天雷劈在我头顶。我是人！我也是人！</p>
-                    <p>那一刻，过往所有被边缘化、自我怀疑、自暴自弃的时刻，全都找到了出口。原来我不是异类，不是废物，不是下水道跑出来的杂碎，我是一个有自己的尊严、有思维、有感情的真实人类！</p>
-                    <p>我真的太爱太爱我们人类了！</p>
-                    <p>我原以为，我只能在阴暗角落里活着，偷偷摸摸、低声下气。哪怕偶尔被人当成危害，我也已经感恩不尽。但现在我才知道，我不只是个旁观者，我是这个文明的一份子！</p>
-                    <p>其实我啊，早就是人了！</p>
-                    <p>这是 100% 的确认，我也要以 10000% 的热情活下去。我要用行动证明：<span style="color: #8b5cf6; font-weight: bold;">老鼠只是外号，人类才是自己。</span></p>
-                </div>
-                <div class="post-tags">
-                    <a href="#" class="tag">#罕见</a>
-                    <a href="#" class="tag">#基因</a>
-                    <a href="#" class="tag">#精神状态</a>
-                    <a href="#" class="tag">#萌宠</a>
-                    <a href="#" class="tag">#老鼠</a>
-                    <a href="#" class="tag">#废物</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="content-side">
-            <div class="comment-section">
-                <div class="comment-input-wrapper">
-                    <div class="comment-func-bar">
-                        <div class="func-item" id="atFunc">
-                            <i class="fas fa-at"></i>
-                        </div>
-                        <div class="func-item" id="emojiFunc">
-                            <i class="far fa-smile"></i>
-                        </div>
-                        <div class="func-item" id="imgFunc">
-                            <i class="fas fa-image"></i>
-                        </div>
+        <!-- 2. 核心内容区 -->
+        <div class="container">
+            <div class="content-main">
+                <div class="image-carousel">
+                    <div class="carousel-item">
+                        <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fd62076a5b6a414fb3d9b4460ecdc7b4.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260117214814412F45B474C6832D43D2&rrcfp=8a172a1a&x-expires=1769262494&x-signature=UGOn%2FgRtPqY5M96igQR6cqHYC9s%3D" 
+                             alt="老鼠基因检测插画" 
+                             class="carousel-img"
+                             onerror="this.src='https://picsum.photos/800/500?grayscale';">
                     </div>
-                    <textarea class="comment-input" placeholder="说点什么..."></textarea>
                 </div>
-                <div class="comment-submit">
-                    <button class="submit-btn" disabled>发布评论</button>
+                <div class="post-content">
+                    <h1 class="post-title">
+                        <span class="tooltip-box" data-modal-content="发帖者无厘头的趣味分享">得知自己是人类，哭了整整一个下午……</span>
+                    </h1>
+                    <div class="post-body">
+                        <p>从昨天下午到现在，我真的…… 哭到抽搐，嗓子像被砂纸刮过，眼泪把整张床单都打湿了，眼角肿得像刚做完拉皮手术一样。</p>
+                        <p>两周前，我只是出于自嘲，给自己做了一个 DNA 检测。我一直以为，我可能是某种老鼠、臭虫，或某种社会边角料。毕竟，从小到大我就不觉得自己 “属于人类” 这个群体。没有人在意我，他们都不喜欢我，见到我都唯恐避之不及。</p>
+                        <p>昨天收到检测报告，本来没怎么在意，只是例行点开看看。</p>
+                        <p>看到第一行，我瞬间崩溃了：<br><strong>Human: 100%</strong></p>
+                        <p>我居然是人类！我以为我只是一只从下水道里意外爬进大学课堂的臭老鼠，是一只让所有人都欲除之的悲惨生物。</p>
+                        <p>但这条结果，像一道天雷劈在我头顶。我是人！我也是人！</p>
+                        <p>那一刻，过往所有被边缘化、自我怀疑、自暴自弃的时刻，全都找到了出口。原来我不是异类，不是废物，不是下水道跑出来的杂碎，我是一个有自己的尊严、有思维、有感情的真实人类！</p>
+                        <p>我真的太爱太爱我们人类了！</p>
+                        <p>我原以为，我只能在阴暗角落里活着，偷偷摸摸、低声下气。哪怕偶尔被人当成危害，我也已经感恩不尽。但现在我才知道，我不只是个旁观者，我是这个文明的一份子！</p>
+                        <p>其实我啊，早就是人了！</p>
+                        <p>这是 100% 的确认，我也要以 10000% 的热情活下去。我要用行动证明：<span style="color: #8b5cf6; font-weight: bold;">老鼠只是外号，人类才是自己。</span></p>
+                    </div>
+                    <div class="post-tags">
+                        <a href="#" class="tag">#罕见</a>
+                        <a href="#" class="tag">#基因</a>
+                        <a href="#" class="tag">#精神状态</a>
+                        <a href="#" class="tag">#萌宠</a>
+                        <a href="#" class="tag">#老鼠</a>
+                        <a href="#" class="tag">#废物</a>
+                    </div>
                 </div>
+            </div>
 
-                <!-- 评论列表 -->
-                <div class="comment-list">
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
-                            <div class="comment-author-box">
-                                <span class="comment-author">每天都在讨饭</span>
+            <div class="content-side">
+                <div class="comment-section">
+                    <div class="comment-input-wrapper">
+                        <div class="comment-func-bar">
+                            <div class="func-item" id="atFunc">
+                                <i class="fas fa-at"></i>
                             </div>
-                            <span class="comment-time">2小时前</span>
-                        </div>
-                        <div class="comment-content">
-                            <span class="tooltip-box" data-modal-content="网友对抽象内容的趣味回复">请问参考文献是什么？</span>
-                        </div>
-                        <div class="comment-replies">
-                            <div class="reply-item">
-                                <img src="https://picsum.photos/seed/author/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*
-                                </div>
+                            <div class="func-item" id="emojiFunc">
+                                <i class="far fa-smile"></i>
                             </div>
-                            <div class="reply-item">
+                            <div class="func-item" id="imgFunc">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        </div>
+                        <textarea class="comment-input" placeholder="说点什么..."></textarea>
+                    </div>
+                    <div class="comment-submit">
+                        <button class="submit-btn" disabled>发布评论</button>
+                    </div>
+
+                    <!-- 评论列表 -->
+                    <div class="comment-list">
+                        <div class="comment-item">
+                            <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！
+                                <div class="comment-author-box">
+                                    <span class="comment-author">每天都在讨饭</span>
+                                </div>
+                                <span class="comment-time">2小时前</span>
+                            </div>
+                            <div class="comment-content">
+                                <span class="tooltip-box" data-modal-content="网友对抽象内容的趣味回复">请问参考文献是什么？</span>
+                            </div>
+                            <div class="comment-replies">
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/author/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*
+                                    </div>
+                                </div>
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <img src="https://picsum.photos/seed/comment2/32/32" alt="头像" class="avatar">
-                            <div class="comment-author-box">
-                                <span class="comment-author">快乐星球居民</span>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <img src="https://picsum.photos/seed/comment2/32/32" alt="头像" class="avatar">
+                                <div class="comment-author-box">
+                                    <span class="comment-author">快乐星球居民</span>
+                                </div>
+                                <span class="comment-time">1小时前</span>
                             </div>
-                            <span class="comment-time">1小时前</span>
-                        </div>
-                        <div class="comment-content">快来合影参考文献！@宇宙无敌美少女</div>
-                        <div class="comment-replies">
-                            <div class="reply-item">
-                                <img src="https://picsum.photos/seed/comment3/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！
+                            <div class="comment-content">快来合影参考文献！@宇宙无敌美少女</div>
+                            <div class="comment-replies">
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment3/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">宇宙无敌美少女</span> 回复 <span class="reply-at">快乐星球居民</span>：哈哈哈太抽象了，求问博主精神状态！
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <img src="https://picsum.photos/seed/comment4/32/32" alt="头像" class="avatar">
-                            <div class="comment-author-box">
-                                <span class="comment-author">学术卷王</span>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <img src="https://picsum.photos/seed/comment4/32/32" alt="头像" class="avatar">
+                                <div class="comment-author-box">
+                                    <span class="comment-author">学术卷王</span>
+                                </div>
+                                <span class="comment-time">1小时前</span>
                             </div>
-                            <span class="comment-time">1小时前</span>
-                        </div>
-                        <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！
-                            <span class="tooltip-box" data-modal-content="将具有强烈反差的学术格式与抽象内容相结合，产生了独特的趣味性">参考文献[1]：《得知自己是人类，哭了一下午》</span>
-                        </div>
-                        <div class="comment-replies">
-                            <div class="reply-item">
-                                <img src="https://picsum.photos/seed/comment5/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！
+                            <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！
+                                <span class="tooltip-box" data-modal-content="将具有强烈反差的学术格式与抽象内容相结合，产生了独特的趣味性">参考文献[1]：《得知自己是人类，哭了一下午》</span>
+                            </div>
+                            <div class="comment-replies">
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment5/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">热心网友</span> 回复 <span class="reply-at">学术卷王</span>：哈哈哈哈感谢整理！
+                                    </div>
+                                </div>
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment6/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo
+                                    </div>
+                                </div>
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment7/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha
+                                    </div>
                                 </div>
                             </div>
-                            <div class="reply-item">
-                                <img src="https://picsum.photos/seed/comment6/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">momo</span> 回复 <span class="reply-at">学术卷王</span>：我将严肃引用@momo
-                                </div>
-                            </div>
-                            <div class="reply-item">
-                                <img src="https://picsum.photos/seed/comment7/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">摆烂选手</span> 回复 <span class="reply-at">学术卷王</span>：我不行了hahahha
-                                </div>
-                            </div>
                         </div>
-                    </div>
 
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                            <div class="comment-author-box">
-                                <span class="comment-author">吃瓜群众</span>
-                            </div>
-                            <span class="comment-time">50分钟前</span>
-                        </div>
-                        <div class="comment-content">这人……偶不，这鼠在说什么呢!</div>
-                        <div class="comment-replies">
-                            <div class="reply-item">
+                        <div class="comment-item">
+                            <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇
+                                <div class="comment-author-box">
+                                    <span class="comment-author">吃瓜群众</span>
                                 </div>
+                                <span class="comment-time">50分钟前</span>
                             </div>
-                            <div class="reply-item">
-                                <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）
+                            <div class="comment-content">这人……偶不，这鼠在说什么呢!</div>
+                            <div class="comment-replies">
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇
+                                    </div>
+                                </div>
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：看来我们精神状态都不咋地（）
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
-                            <div class="comment-author-box">
-                                <span class="comment-author">生物课代表</span>
-                            </div>
-                            <span class="comment-time">30分钟前</span>
-                        </div>
-                        <div class="comment-content">
-                            <span class="tooltip-box" data-modal-content="网友对原帖的二次创作">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午......</span>
-                        </div>
-                        <div class="comment-replies">
-                            <div class="reply-item">
+                        <div class="comment-item">
+                            <div class="comment-header">
                                 <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
-                                <div class="reply-content">
-                                    <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》
+                                <div class="comment-author-box">
+                                    <span class="comment-author">生物课代表</span>
+                                </div>
+                                <span class="comment-time">30分钟前</span>
+                            </div>
+                            <div class="comment-content">
+                                <span class="tooltip-box" data-modal-content="网友对原帖的二次创作">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午......</span>
+                            </div>
+                            <div class="comment-replies">
+                                <div class="reply-item">
+                                    <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
+                                    <div class="reply-content">
+                                        <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <img src="https://picsum.photos/seed/comment10/32/32" alt="头像" class="avatar">
-                            <div class="comment-author-box">
-                                <span class="comment-author">追瓜人</span>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <img src="https://picsum.photos/seed/comment10/32/32" alt="头像" class="avatar">
+                                <div class="comment-author-box">
+                                    <span class="comment-author">追瓜人</span>
+                                </div>
+                                <span class="comment-time">10分钟前</span>
                             </div>
-                            <span class="comment-time">10分钟前</span>
+                            <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
                         </div>
-                        <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
-                    </div>
 
-                    <button class="expand-btn">展开更多评论</button>
+                        <button class="expand-btn">展开更多评论</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="footer-investigate">
-        <button class="footer-investigate-btn" id="footerInvestigateBtn">阅读完毕，进行信息分析</button>
+        <div class="footer-investigate">
+            <button class="footer-investigate-btn" id="footerInvestigateBtn">阅读完毕，进行信息分析</button>
+        </div>
     </div>
 
     <!-- 弹窗容器 -->
@@ -918,6 +954,28 @@ document.getElementById('footerInvestigateBtn').addEventListener('click', functi
     // 直接修改当前页面的URL，实现本页面跳转
     window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
 });
+
+            // 新增：处理屏幕旋转事件，确保旋转效果稳定
+            function handleOrientationChange() {
+                const wrapper = document.getElementById('page-wrapper');
+                const modal = document.querySelector('.modal-overlay');
+                const isMobile = window.innerWidth <= 576;
+                if (isMobile) {
+                    wrapper.style.width = `${window.innerHeight}px`;
+                    wrapper.style.height = `${window.innerWidth}px`;
+                    modal.style.width = `${window.innerHeight}px`;
+                    modal.style.height = `${window.innerWidth}px`;
+                } else {
+                    wrapper.style.width = '100vw';
+                    wrapper.style.height = '100vh';
+                    wrapper.style.transform = 'none';
+                    modal.style.transform = 'none';
+                }
+            }
+
+            window.addEventListener('resize', handleOrientationChange);
+            window.addEventListener('orientationchange', handleOrientationChange);
+            handleOrientationChange(); // 初始化执行一次
         });
     </script>
 </body>
