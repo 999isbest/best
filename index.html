@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 优化视口：禁止缩放，强制适配设备宽度，解决旋转后偏移 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://picsum.photos https://p3-flow-imagex-download-sign.byteimg.com data:; font-src 'self' https://cdn.bootcdn.net; connect-src 'self'; frame-src 'self' https://999isbest.github.io;">
     <title>得知自己是人类，哭了整整一个下午…… - 鸣屿论坛</title>
     <style>
@@ -39,7 +40,8 @@
             background-color: var(--bg-main);
             color: var(--text-main);
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden; /* 禁止手机端整体滚动 */
+            touch-action: none; /* 禁止触摸默认行为，避免滑动偏移 */
         }
 
         .page-container {
@@ -49,6 +51,7 @@
             display: flex;
             flex-direction: column;
             padding-top: 70px;
+            box-sizing: border-box;
         }
 
         /* 1. 固定导航区 */
@@ -521,40 +524,45 @@
             box-shadow: 0 6px 16px rgba(74, 108, 247, 0.3);
         }
 
-        /* ========== 移动端旋转90度 + 适配 ========== */
+        /* ========== 移动端旋转90度 + 完美居中核心代码 ========== */
         @media screen and (max-width: 768px), screen and (max-device-width: 768px) {
-            /* 整个页面容器旋转90度 */
+            /* 核心：旋转90度 + 绝对居中，适配所有手机尺寸 */
             .page-container {
                 transform: rotate(90deg);
-                transform-origin: center center;
-                width: 100vh;
-                height: 100vw;
+                transform-origin: center center; /* 以容器中心旋转，避免偏移 */
+                width: 100vh; /* 旋转后宽度=原屏幕高度 */
+                height: 100vw; /* 旋转后高度=原屏幕宽度 */
                 position: fixed;
-                top: 0;
-                left: 0;
+                top: 50%; /* 垂直居中 */
+                left: 50%; /* 水平居中 */
+                /* 反向偏移50%，实现完美居中 */
+                transform: rotate(90deg) translate(-50%, -50%);
                 padding-top: 0;
-                margin-top: calc((100vw - 100vh) / 2);
+                margin: 0; /* 清空原有margin，避免冲突 */
+                overflow-y: auto; /* 内部滚动，不影响整体 */
+                -webkit-overflow-scrolling: touch; /* 开启手机端顺滑滚动 */
             }
 
-            /* 调整导航栏适配旋转后的布局 */
+            /* 导航栏适配旋转后的居中布局 */
             .navbar {
                 position: fixed;
-                top: auto;
-                bottom: 0;
+                top: 0;
                 left: 0;
                 right: 0;
                 width: 100vh;
                 height: 70px;
                 padding: 0 15px;
+                z-index: 999;
             }
 
-            /* 核心容器适配 */
+            /* 核心容器适配手机屏幕 */
             .container {
                 max-width: none;
-                width: calc(100vw - 40px);
-                margin: 20px auto;
-                grid-template-columns: 1fr;
+                width: calc(100vw - 40px); /* 适配旋转后的宽度，留边距 */
+                margin: 80px auto 20px; /* 避开导航栏，底部留边 */
+                grid-template-columns: 1fr; /* 单栏布局，适配手机 */
                 padding: 0 10px;
+                flex: 1;
             }
 
             /* 图片区域适配 */
@@ -592,7 +600,10 @@
                 padding: 6px 10px;
             }
 
-            /* 弹窗适配 */
+            /* 弹窗适配旋转后的居中布局 */
+            .modal-overlay {
+                z-index: 1002; /* 高于所有元素，避免被遮挡 */
+            }
             .modal-content {
                 padding: 15px 20px;
                 font-size: 16px;
@@ -630,12 +641,8 @@
             }
         }
 
-        /* 更小的移动端设备优化 */
+        /* 更小的移动端设备（480px以下）精细优化 */
         @media screen and (max-width: 480px), screen and (max-device-width: 480px) {
-            .page-container {
-                margin-top: calc((100vw - 100vh) / 2);
-            }
-
             .image-carousel {
                 height: 250px;
             }
@@ -652,13 +659,17 @@
                 padding: 8px 20px;
                 font-size: 14px;
             }
+
+            .search-container {
+                max-width: 300px;
+            }
         }
     </style>
     <!-- 引入图标库 -->
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 新增页面容器，用于旋转 -->
+    <!-- 旋转容器：包裹所有内容 -->
     <div class="page-container">
         <!-- 1. 固定导航区 -->
         <nav class="navbar">
@@ -981,11 +992,11 @@
                 window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
             });
 
-            // 监听窗口大小变化，重新适配旋转布局
+            // 监听窗口旋转/大小变化，重新适配居中布局（适配手机横屏/竖屏切换）
             window.addEventListener('resize', function() {
                 const pageContainer = document.querySelector('.page-container');
                 if (window.innerWidth <= 768) {
-                    pageContainer.style.marginTop = `calc((100vw - 100vh) / 2)`;
+                    pageContainer.style.transform = 'rotate(90deg) translate(-50%, -50%)';
                 }
             });
         });
