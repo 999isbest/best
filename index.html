@@ -1,4 +1,3 @@
-```html name=index.html url=https://github.com/999isbest/Forum-detail-page-simulation/blob/0564b77f5ee828d3dd8b2591cb4d4adee9043ba8/index.html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -188,14 +187,10 @@
         .carousel-item {
             width: 100%;
             height: 100%;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             background-color: #f0f0f0;
-        }
-
-        .carousel-item.active {
-            display: flex;
         }
 
         .carousel-img {
@@ -221,7 +216,6 @@
             justify-content: center;
             font-size: 20px;
             transition: all 0.3s;
-            z-index: 10;
         }
 
         .image-carousel:hover .carousel-btn {
@@ -606,21 +600,21 @@
         </div>
         <!-- 搜索框区域 -->
         <div class="search-container">
-            <input type="text" class="search-input" placeholder="请输入关键词或话题" id="searchInput" aria-label="搜索">
-            <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-hidden="true">
-                <div class="suggestion-item" role="option">#参考文献 梗</div>
-                <div class="suggestion-item" role="option">得知自己是人类，哭了整整一个下午……</div>
-                <div class="suggestion-item" role="option">#精神状态 搞笑</div>
-                <div class="suggestion-item" role="option">基因检测 有趣结果</div>
-                <div class="suggestion-item" role="option">#老鼠 自嘲 文案</div>
+            <input type="text" class="search-input" placeholder="请输入关键词或话题" id="searchInput">
+            <div class="search-suggestions" id="searchSuggestions">
+                <div class="suggestion-item">#参考文献 梗</div>
+                <div class="suggestion-item">得知自己是人类，哭了整整一个下午……</div>
+                <div class="suggestion-item">#精神状态 搞笑</div>
+                <div class="suggestion-item">基因检测 有趣结果</div>
+                <div class="suggestion-item">#老鼠 自嘲 文案</div>
             </div>
         </div>
         <!-- 右上角：消息+个人中心图标 -->
         <div class="nav-right">
-            <div class="nav-icon" id="msgIcon" role="button" aria-label="消息">
+            <div class="nav-icon" id="msgIcon">
                 <i class="far fa-bell"></i>
             </div>
-            <div class="nav-icon" id="userIcon" role="button" aria-label="个人中心">
+            <div class="nav-icon" id="userIcon">
                 <i class="far fa-user"></i>
             </div>
         </div>
@@ -630,17 +624,13 @@
     <div class="container">
         <!-- 左侧核心内容展示区 -->
         <div class="content-main">
-            <div class="image-carousel" aria-roledescription="carousel">
-                <button class="carousel-btn prev-btn" aria-label="上一张">&lt;</button>
-                <!-- 使用稳定占位图以保证 HTML 正常，替换为你真实的图片 URL -->
-                <div class="carousel-item active">
-                    <img src="https://picsum.photos/1200/500?seed=genetics1" alt="老鼠基因检测插画" class="carousel-img">
-                </div>
-                <!-- 可添加更多 carousel-item（示例） -->
+            <div class="image-carousel">
+                <button class="carousel-btn prev-btn">&lt;</button>
+                <!-- 最新版老鼠基因检测插画 -->
                 <div class="carousel-item">
-                    <img src="https://picsum.photos/1200/500?seed=genetics2" alt="插画2" class="carousel-img">
+                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/fd62076a5b6a414fb3d9b4460ecdc7b4.jpg~tplv-a9rns2rl98-24:720:720.image?lk3s=8e244e95&rcl=20260117214814412F45B474C6832D43D2&rrcfp=8a172a1a&x-expires=1769262494&x-signature=UGOn%2FgRtPqY5M96igQR6cqHYC9s%3D" alt="老鼠基因检测插画" class="carousel-img">
                 </div>
-                <button class="carousel-btn next-btn" aria-label="下一张">&gt;</button>
+                <button class="carousel-btn next-btn">&gt;</button>
             </div>
             <div class="post-content">
                 <h1 class="post-title">
@@ -648,16 +638,16 @@
                 </h1>
                 <div class="post-body">
                     <p>从昨天下午到现在，我真的…… 哭到抽搐，嗓子像被砂纸刮过，眼泪把整张床单都打湿了，眼角肿得像刚做完拉皮手术一样。</p>
-                    <p>两周前，我只是出于自���，给自己做了一个 DNA 检测。我一直以为，我可能是某种老鼠、臭虫，或某种社会边角料。毕竟，从小到大我总是被边缘化。</p>
+                    <p>两周前，我只是出于自嘲，给自己做了一个 DNA 检测。我一直以为，我可能是某种老鼠、臭虫，或某种社会边角料。毕竟，从小到大我就不觉得自己 “属于人类” 这个群体。没有人在意我，他们都不喜欢我，见到我都唯恐避之不及。</p>
                     <p>昨天收到检测报告，本来没怎么在意，只是例行点开看看。</p>
                     <p>看到第一行，我瞬间崩溃了：<br><strong>Human: 100%</strong></p>
                     <p>我居然是人类！我以为我只是一只从下水道里意外爬进大学课堂的臭老鼠，是一只让所有人都欲除之的悲惨生物。</p>
                     <p>但这条结果，像一道天雷劈在我头顶。我是人！我也是人！</p>
-                    <p>那一刻，过往所有被边缘化、自我怀疑、自暴自弃的时刻，全都找到了出口。原来我不是异类，不是废物，不是下水道跑出来的杂碎，原来我也是这个世界的一份子。</p>
+                    <p>那一刻，过往所有被边缘化、自我怀疑、自暴自弃的时刻，全都找到了出口。原来我不是异类，不是废物，不是下水道跑出来的杂碎，我是一个有自己的尊严、有思维、有感情的真实人类！</p>
                     <p>我真的太爱太爱我们人类了！</p>
-                    <p>我原以为，我只能在阴暗角落里活着，偷偷摸摸、低声下气。哪怕偶尔被人当成危害，我也已经感恩不尽。但现在我才知道，我不只是一个外号。</p>
+                    <p>我原以为，我只能在阴暗角落里活着，偷偷摸摸、低声下气。哪怕偶尔被人当成危害，我也已经感恩不尽。但现在我才知道，我不只是个旁观者，我是这个文明的一份子！</p>
                     <p>其实我啊，早就是人了！</p>
-                    <p>这是 100% 的确认，我也要以 10000% 的热情活下去。我要用行动证明：老鼠只是外号，人类才是自己真正的身份。</p>
+                    <p>这是 100% 的确认，我也要以 10000% 的热情活下去。我要用行动证明：<span style="color: #8b5cf6; font-weight: bold;">老鼠只是外号，人类才是自己。</span></p>
                 </div>
                 <div class="post-tags">
                     <a href="#" class="tag">#罕见</a>
@@ -676,17 +666,17 @@
                 <!-- 评论输入框（仅保留图标） -->
                 <div class="comment-input-wrapper">
                     <div class="comment-func-bar">
-                        <div class="func-item" id="atFunc" title="@ 提及">
+                        <div class="func-item" id="atFunc">
                             <i class="fas fa-at"></i>
                         </div>
-                        <div class="func-item" id="emojiFunc" title="表情">
+                        <div class="func-item" id="emojiFunc">
                             <i class="far fa-smile"></i>
                         </div>
-                        <div class="func-item" id="imgFunc" title="图片">
+                        <div class="func-item" id="imgFunc">
                             <i class="fas fa-image"></i>
                         </div>
                     </div>
-                    <textarea class="comment-input" placeholder="说点什么..." aria-label="评论输入"></textarea>
+                    <textarea class="comment-input" placeholder="说点什么..."></textarea>
                 </div>
                 <div class="comment-submit">
                     <button class="submit-btn" disabled>发布评论</button>
@@ -710,13 +700,13 @@
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/author/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是在作弄大家？
+                                    <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span> 回复 <span class="reply-at">每天都在讨饭</span>：有没有可能我就是原创*v*
                                 </div>
                             </div>
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment1/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震惊状态！
+                                    <span class="reply-at">每天都在讨饭</span> 回复 <span class="reply-at">拉维欧萨 <span class="author-tag">发帖者</span></span>：甚么！原来是震撼首发！
                                 </div>
                             </div>
                         </div>
@@ -752,7 +742,7 @@
                             <span class="comment-time">1小时前</span>
                         </div>
                         <div class="comment-content">家人们，我已经帮你们整理好了参考文献的格式，不用感谢我哈！
-                            <span class="tooltip-box" data-modal-content="将具有强烈反差的学术格式与抽象内容相结合，产生了独特的趣味性">参考文献[1]：《得知自己是人类，哭了整整一个下午》</span>
+                            <span class="tooltip-box" data-modal-content="将具有强烈反差的学术格式与抽象内容相结合，产生了独特的趣味性">参考文献[1]：《得知自己是人类，哭了一下午》</span>
                         </div>
                         <div class="comment-replies">
                             <div class="reply-item">
@@ -790,7 +780,7 @@
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment8/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了也觉得有趣。
+                                    <span class="reply-at">吃瓜群众</span> 回复 <span class="reply-at">吃瓜群众</span>：我一直坚信我国有着严格的精神类药品管制，但看了你的笔记后，我有些动摇
                                 </div>
                             </div>
                             <div class="reply-item">
@@ -812,13 +802,13 @@
                             <span class="comment-time">30分钟前</span>
                         </div>
                         <div class="comment-content">
-                            <span class="tooltip-box" data-modal-content="网友对原帖的二次创作">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午。</span>
+                            <span class="tooltip-box" data-modal-content="网友对原帖的二次创作">得知自己是動物界脊索動物門哺乳綱靈長目人科人屬人類，哭了一下午......</span>
                         </div>
                         <div class="comment-replies">
                             <div class="reply-item">
                                 <img src="https://picsum.photos/seed/comment9/32/32" alt="头像" class="avatar">
                                 <div class="reply-content">
-                                    <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了整整一个下午》
+                                    <span class="reply-at">生物课代表</span> 回复 <span class="reply-at">全体</span>：参考文献[1]：《得知自己是人类，哭了一下午》
                                 </div>
                             </div>
                         </div>
@@ -833,10 +823,10 @@
                             </div>
                             <span class="comment-time">10分钟前</span>
                         </div>
-                        <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以��能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
+                        <div class="comment-content">我真服了你们了我一路追着各种参考文献搜过来，还以为能看到什么伪人的瓜，结果你纯抽象哈哈哈</div>
                     </div>
 
-                    <button class="expand-btn" id="expandCommentsBtn">展开更多评论</button>
+                    <button class="expand-btn">展开更多评论</button>
                 </div>
             </div>
         </div>
@@ -848,9 +838,9 @@
     </div>
 
     <!-- 弹窗容器 -->
-    <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
-        <button class="modal-close" id="modalClose" aria-label="关闭弹窗">&times;</button>
-        <div class="modal-content" id="modalContent" role="dialog" aria-modal="true">
+    <div class="modal-overlay" id="modalOverlay">
+        <button class="modal-close" id="modalClose">&times;</button>
+        <div class="modal-content" id="modalContent">
             <!-- 弹窗内容动态生成 -->
         </div>
     </div>
@@ -863,79 +853,22 @@
             const searchSuggestions = document.getElementById('searchSuggestions');
 
             if (searchInput && searchSuggestions) {
-                const suggestionItems = Array.from(searchSuggestions.querySelectorAll('.suggestion-item'));
-
-                searchInput.addEventListener('focus', () => {
-                    searchSuggestions.classList.add('show');
-                    searchSuggestions.setAttribute('aria-hidden', 'false');
-                });
-                searchInput.addEventListener('input', () => {
-                    // 当有输入时也显示建议（你可以按需实现过滤）
-                    if (searchInput.value.trim() === '') {
-                        // 可选择隐藏或继续显示所有建议，这里保留显示
-                        searchSuggestions.classList.add('show');
-                    } else {
-                        searchSuggestions.classList.add('show');
-                    }
-                    searchSuggestions.setAttribute('aria-hidden', 'false');
-                });
-
-                // 点击页面其他区域时关闭
+                searchInput.addEventListener('focus', () => searchSuggestions.classList.add('show'));
+                searchInput.addEventListener('input', () => searchSuggestions.classList.add('show'));
                 document.addEventListener('click', (e) => {
                     if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
                         searchSuggestions.classList.remove('show');
-                        searchSuggestions.setAttribute('aria-hidden', 'true');
                     }
-                });
-
-                // 建议项点击：填入输入并隐藏建议
-                suggestionItems.forEach(item => {
-                    item.addEventListener('click', () => {
-                        searchInput.value = item.textContent.trim();
-                        searchSuggestions.classList.remove('show');
-                        searchSuggestions.setAttribute('aria-hidden', 'true');
-                        searchInput.focus();
-                        // 可在此触发搜索函数
-                    });
                 });
             }
 
-            // 图片轮播（实现切换逻辑）
-            const carousel = document.querySelector('.image-carousel');
-            if (carousel) {
-                const items = Array.from(carousel.querySelectorAll('.carousel-item'));
-                const prevBtn = carousel.querySelector('.prev-btn');
-                const nextBtn = carousel.querySelector('.next-btn');
-                let currentIndex = items.findIndex(it => it.classList.contains('active'));
-                if (currentIndex === -1) currentIndex = 0;
+            // 图片轮播（单图隐藏按钮）
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
 
-                function showCarouselIndex(i) {
-                    items.forEach((it, idx) => {
-                        if (idx === i) {
-                            it.classList.add('active');
-                        } else {
-                            it.classList.remove('active');
-                        }
-                    });
-                }
-
-                if (items.length <= 1) {
-                    // 单图不显示控制按钮
-                    prevBtn && (prevBtn.style.display = 'none');
-                    nextBtn && (nextBtn.style.display = 'none');
-                } else {
-                    showCarouselIndex(currentIndex);
-                    prevBtn && prevBtn.addEventListener('click', () => {
-                        currentIndex = (currentIndex - 1 + items.length) % items.length;
-                        showCarouselIndex(currentIndex);
-                    });
-                    nextBtn && nextBtn.addEventListener('click', () => {
-                        currentIndex = (currentIndex + 1) % items.length;
-                        showCarouselIndex(currentIndex);
-                    });
-                    // 可选：自动轮播（注释掉，按需开启）
-                    // setInterval(() => { nextBtn && nextBtn.click(); }, 5000);
-                }
+            if (prevBtn && nextBtn) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
             }
 
             // 评论输入框功能：输入内容激活发布按钮
@@ -943,12 +876,9 @@
             const submitBtn = document.querySelector('.submit-btn');
 
             if (commentInput && submitBtn) {
-                const updateSubmitState = () => {
+                commentInput.addEventListener('input', () => {
                     submitBtn.disabled = commentInput.value.trim() === '';
-                };
-                commentInput.addEventListener('input', updateSubmitState);
-                // 初始化
-                updateSubmitState();
+                });
             }
 
             // 评论功能：仅保留点击响应
@@ -956,25 +886,14 @@
             const emojiFunc = document.getElementById('emojiFunc');
             const imgFunc = document.getElementById('imgFunc');
 
-            // @功能：点击插入@符号（防御式）
+            // @功能：点击插入@符号
             if (atFunc && commentInput) {
                 atFunc.addEventListener('click', () => {
-                    try {
-                        commentInput.focus();
-                        // 若 selectionStart 不可用则把 @ 加到末尾
-                        const cursorPos = typeof commentInput.selectionStart === 'number' ? commentInput.selectionStart : commentInput.value.length;
-                        const val = commentInput.value || '';
-                        commentInput.value = val.slice(0, cursorPos) + '@' + val.slice(cursorPos);
-                        // 将光标移到 @ 后面
-                        commentInput.selectionStart = commentInput.selectionEnd = cursorPos + 1;
-                        // 触发 input 事件以更新按钮状态
-                        commentInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    } catch (err) {
-                        // 回退：直接追加
-                        commentInput.value = (commentInput.value || '') + '@';
-                        commentInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        console.error('在 textarea 中插入 @ 时出错：', err);
-                    }
+                    commentInput.focus();
+                    const cursorPos = commentInput.selectionStart;
+                    const val = commentInput.value;
+                    commentInput.value = val.slice(0, cursorPos) + '@' + val.slice(cursorPos);
+                    commentInput.selectionStart = commentInput.selectionEnd = cursorPos + 1;
                 });
             }
 
@@ -987,14 +906,13 @@
             }
 
             // 展开更多评论
-            const expandBtn = document.getElementById('expandCommentsBtn');
+            const expandBtn = document.querySelector('.expand-btn');
 
             if (expandBtn) {
                 expandBtn.addEventListener('click', () => {
                     expandBtn.textContent = '已显示全部评论';
                     expandBtn.disabled = true;
                     expandBtn.style.color = 'var(--text-light)';
-                    // 这里可以在真实场景中异步加载更多评论
                 });
             }
 
@@ -1015,28 +933,23 @@
             const modalClose = document.getElementById('modalClose');
             const tooltipBoxes = document.querySelectorAll('.tooltip-box');
 
+            // 打印调试信息，确认是否获取到tooltip元素
+            console.log('找到的tooltip元素数量:', tooltipBoxes.length);
+
             // 点击文字框打开弹窗
             tooltipBoxes.forEach(box => {
-                box.addEventListener('click', (e) => {
-                    const content = box.getAttribute('data-modal-content') || box.textContent || '';
-                    // 防-injection：只插入文本节点或安全-escaped content.
-                    modalContent.innerHTML = '';
-                    const p = document.createElement('p');
-                    p.textContent = content;
-                    modalContent.appendChild(p);
+                box.addEventListener('click', () => {
+                    console.log('点击了tooltip框，内容:', box.getAttribute('data-modal-content'));
+                    const content = box.getAttribute('data-modal-content');
+                    modalContent.innerHTML = `<p>${content}</p>`; // 仅渲染文本，无按钮
                     modalOverlay.classList.add('show');
-                    modalOverlay.setAttribute('aria-hidden', 'false');
                     document.body.style.overflow = 'hidden'; // 禁止页面滚动
-                    // 聚焦到关闭按钮以便键盘可访问
-                    modalClose && modalClose.focus();
-                    e.stopPropagation();
                 });
             });
 
             // 关闭弹窗函数
             function closeModal() {
                 modalOverlay.classList.remove('show');
-                modalOverlay.setAttribute('aria-hidden', 'true');
                 document.body.style.overflow = ''; // 恢复页面滚动
                 modalContent.innerHTML = ''; // 清空弹窗内容
             }
@@ -1046,15 +959,9 @@
                 modalClose.addEventListener('click', closeModal);
             }
             if (modalOverlay) {
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) closeModal();
-                });
+                modalOverlay.addEventListener('click', (e) => e.target === modalOverlay && closeModal());
             }
-            文档.addEventListener('keydown', (e) => {
-                如果 (e.密钥 === 'Escape' && modalOverlay.classList.包含('show')) {
-                    closeModal();
-                }
-            });
+            document.addEventListener('keydown',e)=>key==='Escape'&&modalOverlay.classList.contains('show')closeModal;
 
             // 新增：底部深入调查按钮点击事件（修改为跳转指定链接）
             const footerInvestigateBtn = document.getElementById('footerInvestigateBtn');
@@ -1069,4 +976,3 @@
     </script>
 </body>
 </html>
-```
