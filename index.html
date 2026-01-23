@@ -874,16 +874,11 @@
                 if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
             });
 
-            // 底部按钮跳转
-            document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
-                const a = document.createElement('a');
-                a.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            });
+          // 底部按钮跳转（当前页面跳转）
+document.getElementById('footerInvestigateBtn').addEventListener('click', function() {
+    // 直接修改当前页面的URL，实现本页面跳转
+    window.location.href = 'https://999isbest.github.io/Information-Analysis-System-Reasons-for-its-Popularity/';
+});
         });
     </script>
 </body>
