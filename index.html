@@ -539,8 +539,8 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
-            /* 优化弹窗遮罩触控 */
-            touch-action: none;
+            /* 修复：替换touch-action: none为manipulation，允许滚动穿透 */
+            touch-action: manipulation;
         }
 
         .modal-overlay.active {
@@ -564,6 +564,8 @@
             /* 移除弹窗局部滚动，内容过长时自适应 */
             max-height: none;
             overflow-y: visible;
+            /* 新增：确保弹窗内容可正常交互 */
+            touch-action: auto;
         }
 
         .modal-overlay.active .modal-content {
@@ -674,7 +676,7 @@
                 -webkit-transform-origin: top left;
                 width: 100vh;
                 height: 100vw;
-                touch-action: auto;
+                /* 移除重复的touch-action设置 */
             }
 
             /* 导航栏 - 极致精简，适配旋转后高度 */
@@ -1128,19 +1130,39 @@
             // 打开弹窗 - 优化手机端点击判断，防止误触
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('tooltip-box')) {
+                    // 防止重复点击
+                    if (modalOverlay.classList.contains('active')) return;
+                    
                     const content = e.target.getAttribute('data-modal-content');
                     modalContent.innerHTML = `<p>${content}</p>`;
                     modalOverlay.classList.add('active');
-                    // 手机端：禁止根容器滚动
-                    document.getElementById('page-wrapper').style.overflow = 'hidden';
+                    
+                    // 禁用滚动（保留，但增加兼容性）
+                    const pageWrapper = document.getElementById('page-wrapper');
+                    pageWrapper.style.overflow = 'hidden';
+                    // 强制重绘
+                    void pageWrapper.offsetWidth;
                 }
             });
 
-            // 关闭弹窗函数 - 恢复滚动
+            // 关闭弹窗函数 - 修复版：恢复滚动并强制重绘
             function closeModal() {
                 modalOverlay.classList.remove('active');
-                document.getElementById('page-wrapper').style.overflow = 'auto';
+                const pageWrapper = document.getElementById('page-wrapper');
+                // 1. 恢复滚动
+                pageWrapper.style.overflow = 'auto';
+                // 2. 强制触发重绘，解决移动端渲染延迟问题
+                void pageWrapper.offsetWidth;
+                // 3. 重置弹窗内容
                 modalContent.innerHTML = '';
+                
+                // 额外：针对旋转布局，强制更新滚动容器尺寸
+                if (window.innerWidth <= 576) {
+                    const vh = window.innerHeight;
+                    const vw = window.innerWidth;
+                    pageWrapper.style.width = `${vh}px`;
+                    pageWrapper.style.height = `${vw}px`;
+                }
             }
 
             // 弹窗关闭：按钮、遮罩、ESC键、手机端点击空白处
